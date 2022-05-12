@@ -1,2 +1,2 @@
 # AASMA
-Autonomous Agents and Multi-Agent Systems
+Autonomous Agents and Multi-Agent Systems Project.
