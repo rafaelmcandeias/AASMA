@@ -1,48 +1,82 @@
 import pygame
 import images
 
-# Player Sprites
-# Bottom 2.5 4.4
-# Top 3.5 3.3
+
+# Vars to limit the field size
+LIMIT_LEFT = LIMIT_TOP = 0
+LIMIT_TOP_NET = 255
+LIMIT_BOTTOM_NET  = 300
+LIMIT_BOT = 587
+LIMIT_RIGHT = 648
+
+
+# Player Class Super class for top and bottom players
 class Player(pygame.sprite.Sprite):
 
-    def __init__(self, x, y, is_bot, speedx_rate, speedy_rate):
+    def __init__(self, x, y, speedx, speedy, image):
         pygame.sprite.Sprite.__init__(self)
-        if is_bot:
-            self.image = images.robert
-        else:
-            self.image = images.camden
-        self.rect = self.image.get_rect()
+        # Image for the agent
+        self.image = image
+        # Used for hit boxing. An agent is a rectangule in pixels
+        self.rect = image.get_rect()
+        # Position the image -> agent
         self.rect.center = (x, y)
-        self.speedx = 0
-        self.speedy = 0
-        self.speedx_rate = speedx_rate
-        self.speedy_rate = speedy_rate
+        # Agent's speed through x
+        self.speedx = speedx
+        # Agent's speed through y
+        self.speedy = speedy
 
+
+# Class for Top player
+class Bottom_player(Player):
+
+    def __init__(self, x, y, speedx, speedy):
+        # Initializes Bottom Agent with it's pos, speed and image
+        super().__init__(x, y, speedx, speedy, images.robert)
+    
+    # Function to move a player
     def update(self):
-        self.speedx = 0
-        self.speedy = 0
+        # Get key pressed
         keyState = pygame.key.get_pressed()
-        if keyState[pygame.K_LEFT]:
-            self.speedx = -self.speedx_rate
-        if keyState[pygame.K_RIGHT]:
-            self.speedx = self.speedx_rate
-        self.rect.x += self.speedx
-        if self.rect.right > 700:
-            self.rect.right = 700
-        if self.rect.left < 0:
-            self.rect.left = 0
-        if keyState[pygame.K_UP]:
-            self.speedy = -self.speedy_rate
-        if keyState[pygame.K_DOWN]:
-            self.speedy = self.speedy_rate
-        self.rect.y += self.speedy
-        if self.rect.y < 325:
-            self.rect.y = 325
-        if self.rect.y < 0:
-            self.rect.y = 0
-        if self.rect.y > 587:
-            self.rect.y = 587
+
+        # Left arrow
+        if keyState[pygame.K_LEFT] and self.rect.x > LIMIT_LEFT:
+            self.rect.x -= self.speedx
+        # Right arrow
+        if keyState[pygame.K_RIGHT] and self.rect.x < LIMIT_RIGHT:
+            self.rect.x += self.speedx
+        # Up arrow
+        if keyState[pygame.K_UP] and self.rect.y > LIMIT_BOTTOM_NET:
+            self.rect.y -= self.speedy
+        # Down arrow
+        if keyState[pygame.K_DOWN] and self.rect.y < LIMIT_BOT:
+            self.rect.y += self.speedy
+
+
+# Class for Top player
+class Top_player(Player):
+
+    def __init__(self, x, y, speedx, speedy):
+        super().__init__(x, y, speedx, speedy, images.camden)
+    
+    # Function to move a player
+    def update(self):
+        # Get key pressed
+        keyState = pygame.key.get_pressed()
+
+        # Left arrow
+        if keyState[pygame.K_a] and self.rect.x > LIMIT_LEFT:
+            self.rect.x -= self.speedx
+        # Right arrow
+        if keyState[pygame.K_d] and self.rect.x < LIMIT_RIGHT:
+            self.rect.x += self.speedx
+        # Up arrow
+        if keyState[pygame.K_w] and self.rect.y > LIMIT_TOP:
+            self.rect.y -= self.speedy
+        # Down arrow
+        if keyState[pygame.K_s] and self.rect.y < LIMIT_TOP_NET:
+            self.rect.y += self.speedy
+
 
 # Class for the tennis ball
 class Ball(pygame.sprite.Sprite):

@@ -1,6 +1,6 @@
 import pygame
 import images
-from sprites import Player, Ball
+from sprites import Top_player, Bottom_player, Ball
 
 pygame.init()
 
@@ -34,11 +34,15 @@ while startGame == False:
         pygame.display.flip()
 
 
-#Add people
-all_sprites = pygame.sprite.Group()
-top_player = Player(260, 80, False, 2.5, 4.2)
-bottom_player = Player(400, 575, True, 3.3, 3.5)
+#Add players
+top_player = Top_player(202, 40, 2.5, 4.2)
+bottom_player = Bottom_player(442, 524, 3.3, 3.5)
+
+# Tennis ball
 tennisBall = Ball()
+
+# Adds all objects into a group
+all_sprites = pygame.sprite.Group()
 all_sprites.add(top_player)
 all_sprites.add(tennisBall)
 all_sprites.add(bottom_player)
