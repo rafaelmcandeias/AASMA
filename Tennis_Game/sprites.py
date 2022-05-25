@@ -11,18 +11,20 @@ LIMIT_BOTTOM_NET  = 300
 LIMIT_BOT = 587
 LIMIT_RIGHT = 648
 
+# Vars for starting positions
+BOTTOM_POS = (442, 524)
+TOP_POS = (202, 40)
+
 
 # Player Class Super class for top and bottom players
 class Player(pygame.sprite.Sprite):
 
-    def __init__(self, x, y, speedx, speedy, image):
+    def __init__(self, speedx, speedy, image):
         pygame.sprite.Sprite.__init__(self)
         # Image for the agent
         self.image = image
         # Used for hit boxing. An agent is a rectangule in pixels
         self.rect = image.get_rect()
-        # Position the image -> agent
-        self.rect.center = (x, y)
         # Agent's speed through x
         self.speedx = speedx
         # Agent's speed through y
@@ -32,9 +34,11 @@ class Player(pygame.sprite.Sprite):
 # Class for Top player
 class Bottom_player(Player):
 
-    def __init__(self, x, y, speedx, speedy):
+    def __init__(self, speedx, speedy):
         # Initializes Bottom Agent with it's pos, speed and image
-        super().__init__(x, y, speedx, speedy, images.robert)
+        super().__init__(speedx, speedy, images.robert)
+        # Position the image -> agent
+        self.rect.center = BOTTOM_POS
     
     # Function to move a player
     def update(self):
@@ -58,8 +62,10 @@ class Bottom_player(Player):
 # Class for Top player
 class Top_player(Player):
 
-    def __init__(self, x, y, speedx, speedy):
-        super().__init__(x, y, speedx, speedy, images.camden)
+    def __init__(self, speedx, speedy):
+        super().__init__(speedx, speedy, images.camden)
+        # Position the image -> agent
+        self.rect.center = TOP_POS
     
     # Function to move a player
     def update(self):
