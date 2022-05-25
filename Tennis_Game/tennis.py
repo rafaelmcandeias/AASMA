@@ -2,6 +2,7 @@ import pygame
 import images
 import numpy as np
 import numpy.random as rnd
+from sprites import Top_player, Bottom_player, Ball
 
 pygame.init()
 
@@ -34,209 +35,19 @@ while startGame == False:
         screen.blit(label2, (170, 450))
         pygame.display.flip()
 
-# Player Sprites
-class Robert(pygame.sprite.Sprite):
 
-    def __init__(self):
-        pygame.sprite.Sprite.__init__(self)
-        self.image = images.robert
-        self.rect = self.image.get_rect()
-        self.rect.center = (400, 575)
-        self.speedx = 0
-        self.speedy = 0
+#Add players
+bottom_player = Bottom_player(442, 524, 2.5, 4.2)
+top_player = Top_player(202, 40, 3.3, 3.5)
 
-    def update(self):
-        self.speedx = 0
-        self.speedy = 0
-        keyState = pygame.key.get_pressed()
-        if keyState[pygame.K_LEFT]:
-            self.speedx = -2.4
-        if keyState[pygame.K_RIGHT]:
-            self.speedx = 2.4
-        self.rect.x += self.speedx
-        if self.rect.right > 700:
-            self.rect.right = 700
-        if self.rect.right < 0:
-            self.rect.left = 0
-        if keyState[pygame.K_UP]:
-            self.speedy = -4.25
-        if keyState[pygame.K_DOWN]:
-            self.speedy = 2.6
-        self.rect.y += self.speedy
-        if self.rect.y < 325:
-            self.rect.y = 325
-        if self.rect.y < 0:
-            self.rect.y = 0
-
-class Camden(pygame.sprite.Sprite):
-
-    def __init__(self):
-        pygame.sprite.Sprite.__init__(self)
-        self.image = images.camden
-        self.rect = self.image.get_rect()
-        self.rect.center = (260, 80)
-        self.speedx = 0
-        self.speedy = 0
-
-    def update(self):
-        self.speedx = 0
-        self.speedy = 0
-        keyState = pygame.key.get_pressed()
-        if keyState[pygame.K_a]:
-            self.speedx = -3.5
-        if keyState[pygame.K_d]:
-            self.speedx = 3.5
-        self.rect.x += self.speedx
-        if self.rect.right > 700:
-            self.rect.right = 700
-        if self.rect.right < 0:
-            self.rect.left = 0
-        if keyState[pygame.K_w]:
-            self.speedy = -3.3
-        if keyState[pygame.K_s]:
-            self.speedy = 4.75
-        self.rect.y += self.speedy
-        if self.rect.y > 250:
-            self.rect.y = 250
-        if self.rect.y < 0:
-            self.rect.y = 0
-
-def get_stroke_speed(tennisBall, position, keyState):
-    # bottom players stroke
-    if position == "bottom":
-        # region 1 of the court
-        speedy = -rnd.uniform(5,8)
-        if 175 <= tennisBall.rect.x < 275:
-            if keyState[pygame.K_n]:
-                return (-rnd.uniform(0,1), speedy)
-            elif keyState[pygame.K_m]:
-                return (rnd.uniform(2,4), speedy)
-            else:
-                return (0, speedy)
-        # region 2 of the court
-        if 275 <= tennisBall.rect.x < 475:
-            if keyState[pygame.K_n]:
-                return (-rnd.uniform(2,3), speedy)
-            elif keyState[pygame.K_m]:
-                return (rnd.uniform(2,3), speedy)
-            else:
-                return (0, speedy)
-        # region 3 of the court
-        if 475 <= tennisBall.rect.x <= 575:
-            if keyState[pygame.K_n]:
-                return (-rnd.uniform(0,1), speedy)
-            elif keyState[pygame.K_m]:
-                return (rnd.uniform(2,4), speedy)
-            else:
-                return (0, speedy)
-    
-    # top players stroke
-    else:
-        speedy = rnd.uniform(5,8)
-        if 175 <= tennisBall.rect.x < 275:
-            if keyState[pygame.K_r]:
-                return (-rnd.uniform(0,1), speedy)
-            elif keyState[pygame.K_t]:
-                return (rnd.uniform(2,4), speedy)
-            else:
-                return (0, speedy)
-        # region 2 of the court
-        if 275 <= tennisBall.rect.x < 475:
-            if keyState[pygame.K_r]:
-                return (-rnd.uniform(2,3), speedy)
-            elif keyState[pygame.K_t]:
-                return (rnd.uniform(2,3), speedy)
-            else:
-                return (0, speedy)
-        # region 3 of the court
-        if 475 <= tennisBall.rect.x <= 575:
-            if keyState[pygame.K_r]:
-                return (-rnd.uniform(2,4), speedy)
-            elif keyState[pygame.K_t]:
-                return (rnd.uniform(0,1), speedy)
-            else:
-                return (0, speedy)
-        
-
-
-class Ball(pygame.sprite.Sprite):
-
-    def __init__(self):
-        pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.image.load("tennisBall.png")
-        self.rect = self.image.get_rect()
-        self.speedx = 0
-        self.speedy = 0
-
-    def update(self):
-        
-        keyState = pygame.key.get_pressed()
-
-        # bottom player hits the ball
-        if tennisBall.rect.colliderect(robert):
-            effect = pygame.mixer.Sound('tennisserve.wav')
-            effect.play(0)
-            self.speedx, self.speedy = get_stroke_speed(tennisBall, "bottom", keyState)
-            # forehand animation
-            if tennisBall.rect.colliderect(robert) and tennisBall.rect.x > robert.rect.x + 10:
-                robert.image = images.robert_forehand
-            #backhand animation
-            elif tennisBall.rect.colliderect(robert) and tennisBall.rect.x < robert.rect.x - 10:
-                robert.image = images.robert_backhand                
-        
-        # top player hits the ball
-        elif tennisBall.rect.colliderect(camden):
-            effect = pygame.mixer.Sound('tennisserve.wav')
-            effect.play(0)
-            self.speedx, self.speedy = get_stroke_speed(tennisBall, "top", keyState)
-            # forehand animation
-            if tennisBall.rect.colliderect(robert) and tennisBall.rect.x > robert.rect.x + 10:
-                camden.image = images.camden_forehand
-            #backhand animation
-            elif tennisBall.rect.colliderect(robert) and tennisBall.rect.x < robert.rect.x - 10:
-                camden.image = images.camden_backhand
-
-        #Robert's deuce side serve
-        if keyState[pygame.K_PERIOD] and 350 < robert.rect.x < 575 and robert.rect.y > 449:
-            robert.image = images.robert_serve
-            self.rect.center = (robert.rect.x + 15, robert.rect.y)
-            self.speedx = -7
-            self.speedy = -10
-
-        #Robert's add side serve
-        if keyState[pygame.K_PERIOD] and 175 < robert.rect.x < 350 and robert.rect.y > 449:
-            robert.image = images.robert_serve
-            self.rect.center = (robert.rect.x + 15, robert.rect.y)
-            self.speedx = 7
-            self.speedy = -10
-
-        #Camden's deuce side serve
-        if keyState[pygame.K_TAB] and 175 < camden.rect.x < 350 and camden.rect.y < 78:
-            camden.image = images.camden_serve
-            self.rect.center = (camden.rect.x, camden.rect.y + 40)
-            self.speedx = 7
-            self.speedy = 14
-
-        #Camden's add side serve
-        if keyState[pygame.K_TAB] and 350 < camden.rect.x < 575 and camden.rect.y < 78:
-            camden.image = images.camden_serve
-            self.rect.center = (camden.rect.x, camden.rect.y + 40)
-            self.speedx = -7
-            self.speedy = 14
-
-        #Make the ball slow down
-        self.speedy = self.speedy * 0.99
-        self.speedx = self.speedx * 0.99
-        self.rect = self.rect.move(self.speedx, self.speedy)
-
-#Add people
-all_sprites = pygame.sprite.Group()
-robert = Robert()
-camden = Camden()
+# Tennis ball
 tennisBall = Ball()
-all_sprites.add(robert)
+
+# Adds all objects into a group
+all_sprites = pygame.sprite.Group()
+all_sprites.add(bottom_player)
 all_sprites.add(tennisBall)
-all_sprites.add(camden)
+all_sprites.add(top_player)
 
 carryOn = True
 clock = pygame.time.Clock()
@@ -261,9 +72,9 @@ while carryOn:
     font = pygame.font.Font('freesansbold.ttf', 32)
     screen.fill(OUT)
 
-    camden.update()
-    robert.update()
-    tennisBall.update()
+    top_player.update()
+    bottom_player.update()
+    tennisBall.update(bottom_player, top_player)
 
     epsilonComp = .2
     #Checks to see if the top player's shot made it over the net
@@ -380,7 +191,9 @@ while carryOn:
             if event.key == pygame.K_ESCAPE:
                 carryOn = False
 
-    all_sprites.update()
+    bottom_player.update()
+    top_player.update()
+    tennisBall.update(bottom_player, top_player)
 
     #All the court lines drawn here in the main loop
 
