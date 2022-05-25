@@ -1,5 +1,7 @@
 import pygame
 import images
+import numpy as np
+import numpy.random as rnd
 
 pygame.init()
 
@@ -14,7 +16,7 @@ SKIN = (232, 214, 162)
 #Create the screen
 windowSize = (700, 650)
 screen = pygame.display.set_mode(windowSize)
-pygame.display.set_caption('Clinton Tennis Tour')
+pygame.display.set_caption('AASMA OPEN')
 
 #Start screen
 startGame = False
@@ -22,7 +24,7 @@ while startGame == False:
     screen.fill(BLACK)
     font = pygame.font.Font('freesansbold.ttf', 60)
     font2 = pygame.font.Font('freesansbold.ttf', 36)
-    startLabel = font.render('Clinton Tennis Tour', 1, (WHITE))
+    startLabel = font.render('    AASMA OPEN', 1, (WHITE))
     label2 = font2.render('Press SHIFT to start!', 1, (WHITE))
     for event in pygame.event.get():
         keyState = pygame.key.get_pressed()
@@ -99,6 +101,64 @@ class Camden(pygame.sprite.Sprite):
         if self.rect.y < 0:
             self.rect.y = 0
 
+def get_stroke_speed(tennisBall, position, keyState):
+    # bottom players stroke
+    if position == "bottom":
+        # region 1 of the court
+        speedy = -rnd.uniform(5,8)
+        if 175 <= tennisBall.rect.x < 275:
+            if keyState[pygame.K_n]:
+                return (-rnd.uniform(0,1), speedy)
+            elif keyState[pygame.K_m]:
+                return (rnd.uniform(2,4), speedy)
+            else:
+                return (0, speedy)
+        # region 2 of the court
+        if 275 <= tennisBall.rect.x < 475:
+            if keyState[pygame.K_n]:
+                return (-rnd.uniform(2,3), speedy)
+            elif keyState[pygame.K_m]:
+                return (rnd.uniform(2,3), speedy)
+            else:
+                return (0, speedy)
+        # region 3 of the court
+        if 475 <= tennisBall.rect.x <= 575:
+            if keyState[pygame.K_n]:
+                return (-rnd.uniform(0,1), speedy)
+            elif keyState[pygame.K_m]:
+                return (rnd.uniform(2,4), speedy)
+            else:
+                return (0, speedy)
+    
+    # top players stroke
+    else:
+        speedy = rnd.uniform(5,8)
+        if 175 <= tennisBall.rect.x < 275:
+            if keyState[pygame.K_r]:
+                return (-rnd.uniform(0,1), speedy)
+            elif keyState[pygame.K_t]:
+                return (rnd.uniform(2,4), speedy)
+            else:
+                return (0, speedy)
+        # region 2 of the court
+        if 275 <= tennisBall.rect.x < 475:
+            if keyState[pygame.K_r]:
+                return (-rnd.uniform(2,3), speedy)
+            elif keyState[pygame.K_t]:
+                return (rnd.uniform(2,3), speedy)
+            else:
+                return (0, speedy)
+        # region 3 of the court
+        if 475 <= tennisBall.rect.x <= 575:
+            if keyState[pygame.K_r]:
+                return (-rnd.uniform(2,4), speedy)
+            elif keyState[pygame.K_t]:
+                return (rnd.uniform(0,1), speedy)
+            else:
+                return (0, speedy)
+        
+
+
 class Ball(pygame.sprite.Sprite):
 
     def __init__(self):
@@ -109,75 +169,32 @@ class Ball(pygame.sprite.Sprite):
         self.speedy = 0
 
     def update(self):
-        #Robert's forehand
-        if tennisBall.rect.colliderect(robert) and tennisBall.rect.x > robert.rect.x + 10:
-            robert.image = images.robert_forehand
-            effect = pygame.mixer.Sound('tennisserve.wav')
-            effect.play(0)
-            robert.rect.y -5
-            self.speedy = -13
-            self.speedx = 3
-
-        #Robert's backhand
-        if tennisBall.rect.colliderect(robert) and tennisBall.rect.x < robert.rect.x - 10:
-            robert.image = images.robert_backhand
-            effect = pygame.mixer.Sound('tennisserve.wav')
-            effect.play(0)
-            robert.rect.y -5
-            self.speedy = -12
-            self.speedx = -2
-
-        #Robert's forehand volley
-        if tennisBall.rect.colliderect(robert) and tennisBall.rect.x > robert.rect.x + 10 and 325 < robert.rect.y < 450:
-            robert.image = images.robert_forehand_volley
-            effect = pygame.mixer.Sound('tennisserve.wav')
-            effect.play(0)
-            robert.rect.y -5
-            self.speedy = -5
-
-        #Robert's backhand volley
-        if tennisBall.rect.colliderect(robert) and tennisBall.rect.x < robert.rect.x - 10 and 325 < robert.rect.y < 450:
-            robert.image = images.robert_backhand_volley
-            effect = pygame.mixer.Sound('tennisserve.wav')
-            effect.play(0)
-            robert.rect.y -5
-            self.speedy = -4.5
-
-        #Camden's forehand
-        if tennisBall.rect.colliderect(camden) and tennisBall.rect.x < camden.rect.x -10:
-            camden.image = images.camden_forehand
-            effect = pygame.mixer.Sound('tennisserve.wav')
-            effect.play(0)
-            camden.rect.y -5
-            self.speedy = 14
-            self.speedx = 2
-
-        #Camden's backhand
-        if tennisBall.rect.colliderect(camden) and tennisBall.rect.x > camden.rect.x + 10:
-            camden.image = images.camden_backhand
-            effect = pygame.mixer.Sound('tennisserve.wav')
-            effect.play(0)
-            camden.rect.y -5
-            self.speedy = 13
-            self.speedx = 2
-
-        #Camden's forehand volley
-        if tennisBall.rect.colliderect(camden) and tennisBall.rect.x < camden.rect.x -10 and 200 < camden.rect.y < 325:
-            camden.image = images.camden_forehand_volley
-            effect = pygame.mixer.Sound('tennisserve.wav')
-            effect.play(0)
-            camden.rect.y -5
-            self.speedy = 3.75
-
-        #Camden's backhand volley
-        if tennisBall.rect.colliderect(camden) and tennisBall.rect.x > camden.rect.x + 10 and 200 < camden.rect.y < 325:
-            camden.image = images.camden_backhand_volley
-            effect = pygame.mixer.Sound('tennisserve.wav')
-            effect.play(0)
-            camden.rect.y -5
-            self.speedy = 3.75
-
+        
         keyState = pygame.key.get_pressed()
+
+        # bottom player hits the ball
+        if tennisBall.rect.colliderect(robert):
+            effect = pygame.mixer.Sound('tennisserve.wav')
+            effect.play(0)
+            self.speedx, self.speedy = get_stroke_speed(tennisBall, "bottom", keyState)
+            # forehand animation
+            if tennisBall.rect.colliderect(robert) and tennisBall.rect.x > robert.rect.x + 10:
+                robert.image = images.robert_forehand
+            #backhand animation
+            elif tennisBall.rect.colliderect(robert) and tennisBall.rect.x < robert.rect.x - 10:
+                robert.image = images.robert_backhand                
+        
+        # top player hits the ball
+        elif tennisBall.rect.colliderect(camden):
+            effect = pygame.mixer.Sound('tennisserve.wav')
+            effect.play(0)
+            self.speedx, self.speedy = get_stroke_speed(tennisBall, "top", keyState)
+            # forehand animation
+            if tennisBall.rect.colliderect(robert) and tennisBall.rect.x > robert.rect.x + 10:
+                camden.image = images.camden_forehand
+            #backhand animation
+            elif tennisBall.rect.colliderect(robert) and tennisBall.rect.x < robert.rect.x - 10:
+                camden.image = images.camden_backhand
 
         #Robert's deuce side serve
         if keyState[pygame.K_PERIOD] and 350 < robert.rect.x < 575 and robert.rect.y > 449:
@@ -208,8 +225,8 @@ class Ball(pygame.sprite.Sprite):
             self.speedy = 14
 
         #Make the ball slow down
-        self.speedy = self.speedy * .98
-        self.speedx = self.speedx * .98
+        self.speedy = self.speedy * 0.99
+        self.speedx = self.speedx * 0.99
         self.rect = self.rect.move(self.speedx, self.speedy)
 
 #Add people
@@ -360,7 +377,7 @@ while carryOn:
         if event.type == pygame.QUIT:
             carryOn = False
         elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_x:
+            if event.key == pygame.K_ESCAPE:
                 carryOn = False
 
     all_sprites.update()
