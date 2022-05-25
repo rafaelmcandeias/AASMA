@@ -35,17 +35,17 @@ while startGame == False:
 
 
 #Add players
-top_player = Top_player(202, 40, 2.5, 4.2)
-bottom_player = Bottom_player(442, 524, 3.3, 3.5)
+bottom_player = Bottom_player(442, 524, 2.5, 4.2)
+top_player = Top_player(202, 40, 3.3, 3.5)
 
 # Tennis ball
 tennisBall = Ball()
 
 # Adds all objects into a group
 all_sprites = pygame.sprite.Group()
-all_sprites.add(top_player)
-all_sprites.add(tennisBall)
 all_sprites.add(bottom_player)
+all_sprites.add(tennisBall)
+all_sprites.add(top_player)
 
 carryOn = True
 clock = pygame.time.Clock()
@@ -70,9 +70,9 @@ while carryOn:
     font = pygame.font.Font('freesansbold.ttf', 32)
     screen.fill(OUT)
 
-    bottom_player.update()
     top_player.update()
-    tennisBall.update(top_player, bottom_player)
+    bottom_player.update()
+    tennisBall.update(bottom_player, top_player)
 
     epsilonComp = .2
     #Checks to see if the top player's shot made it over the net
@@ -189,9 +189,9 @@ while carryOn:
             if event.key == pygame.K_x:
                 carryOn = False
 
-    top_player.update()
     bottom_player.update()
-    tennisBall.update(top_player, bottom_player)
+    top_player.update()
+    tennisBall.update(bottom_player, top_player)
 
     #All the court lines drawn here in the main loop
 
