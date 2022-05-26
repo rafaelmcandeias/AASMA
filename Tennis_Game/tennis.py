@@ -37,8 +37,8 @@ while startGame == False:
 
 
 #Add players
-bottom_player = Bottom_player(442, 524, 2.5, 4.2)
-top_player = Top_player(202, 40, 3.3, 3.5)
+top_player = Top_player(5, 5, 3)
+bottom_player = Bottom_player(2.25, 10, 3)
 
 # Tennis ball
 tennisBall = Ball()
