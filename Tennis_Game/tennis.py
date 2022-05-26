@@ -16,7 +16,7 @@ SKIN = (232, 214, 162)
 
 #Create the screen
 windowSize = (700, 650)
-screen = pygame.display.set_mode(windowSize)
+screen = pygame.display.set_mode(windowSize, pygame.RESIZABLE)
 pygame.display.set_caption('AASMA OPEN')
 
 #Start screen
@@ -52,6 +52,7 @@ all_sprites.add(top_player)
 carryOn = True
 clock = pygame.time.Clock()
 
+
 #Declare global scoring variables so that they can be used within the loop
 global score
 score = 0
@@ -69,6 +70,7 @@ ball_is_stopped2 = False
 
 #Main game loop
 while carryOn:
+
     font = pygame.font.Font('freesansbold.ttf', 32)
     screen.fill(OUT)
 
