@@ -155,9 +155,6 @@ class Bottom_player(Player):
             self.rect.y += self.speedy * (self.stamina / self.energy)
             if not pressed:
                 self.stamina *= 0.9999
-        print(self.stamina)
-        
-
 
 # Ball class
 class Ball(pygame.sprite.Sprite):
