@@ -4,7 +4,10 @@ import numpy as np
 import numpy.random as rnd
 from sprites import Top_player, Bottom_player, Ball
 
+
+# Start game
 pygame.init()
+
 
 # Define some colors
 BLACK = (0, 0, 0)
@@ -14,10 +17,12 @@ WHITE = (255, 255, 255)
 GREEN = (0, 255, 0)
 SKIN = (232, 214, 162)
 
+
 #Create the screen
 windowSize = (700, 650)
 screen = pygame.display.set_mode(windowSize, pygame.RESIZABLE)
 pygame.display.set_caption('AASMA OPEN')
+
 
 #Start screen
 startGame = False
@@ -36,9 +41,15 @@ while startGame == False:
         pygame.display.flip()
 
 
-#Add players
-top_player = Top_player(5, 5, 3)
-bottom_player = Bottom_player(2.25, 10, 3)
+# Adds bars to show stamina of each agent
+# (font, size bold)
+font = pygame.font.SysFont("comicsans", 30, True)
+
+
+# Add players
+# Speed, Force, Energy
+top_player = Top_player(5, 10, 1)
+bottom_player = Bottom_player(5, 10, 1)
 
 # Tennis ball
 tennisBall = Ball()
