@@ -2,6 +2,7 @@ import pygame
 import images
 import numpy as np
 import numpy.random as rnd
+import random
 
 # ------------------------------------------------------------
 
@@ -21,12 +22,20 @@ LEFT_FIELD = (175, 274.999)
 MIDDLE_FIELD = (275, 474.999)
 RIGHT_FIELD = (475, 575)
 
+# Vars to divide stamina status
+# These divisions are universal.
+# Different players can be in different fractions
+NO_STAMINA = 0
+LOW_STAMINA = 0.25
+MID_STAMINA = 0.75
+HIGH_STAMINA = 1
+
 # ------------------------------------------------------------
 
 # Player Class Super class for top and bottom players
 class Player(pygame.sprite.Sprite):
 
-    def __init__(self, speed, force, stamina, image):
+    def __init__(self, speed, force, energy, image):
         pygame.sprite.Sprite.__init__(self)
         # Image for the agent
         self.image = image
@@ -36,17 +45,50 @@ class Player(pygame.sprite.Sprite):
         self.speedx = speed
         # Agent's speed through y
         self.speedy = speed
-        # Agent's force apllied to the ball
+        # Agent's max force
         self.force = force
-        # Agent's amount of energy that can be used
-        self.stamina = stamina
+        #  ]0, 1]
+        if energy <= 0 or energy > 1:
+            raise Exception("Invalid energy value")
+        else:
+            # Agent's energy value when started the game
+            self.energy = energy
+            # Agent's current amount of energy
+            self.stamina = energy
+    
+    # Function to reduce amount of stamina given applied force
+    def lose_stamina(self, force):
+        self.stamina -= (force / self.force) * 0.05
 
+    # Function that returns the force choosen.
+    # Choosing a force depends on stamina
+    def choose_force(self):
+        force = self.force
+        # Has no more stamina
+        if self.stamina == NO_STAMINA:
+            return NO_STAMINA
+
+        # Below 25% of energy
+        if self.stamina < LOW_STAMINA * self.energy:
+            force *= random.uniform(0.1, LOW_STAMINA)
+
+        # Below of 75% of energy
+        elif self.stamina < MID_STAMINA * self.energy:
+            force *= random.uniform(LOW_STAMINA, MID_STAMINA)
+
+        # Below 100% of energy
+        elif self.stamina < HIGH_STAMINA * self.energy:
+            force *= random.uniform(MID_STAMINA, HIGH_STAMINA)
+        
+        self.lose_stamina(force)
+        return force
+        
 
 # Class for Top player
 class Top_player(Player):
 
-    def __init__(self, speed, forcex, forcey):
-        super().__init__(speed, forcex, forcey, images.camden)
+    def __init__(self, speed, force, energy):
+        super().__init__(speed, force, energy, images.camden)
         # Position the image -> agent
         self.rect.center = TOP_POS
     
@@ -54,27 +96,35 @@ class Top_player(Player):
     def update(self):
         # Get key pressed
         keyState = pygame.key.get_pressed()
+        pressed = False
 
         # Left arrow
         if keyState[pygame.K_a] and self.rect.x > LIMIT_LEFT:
-            self.rect.x -= self.speedx
+            self.rect.x -= self.speedx * (self.stamina / self.energy)
+            pressed = True
         # Right arrow
         if keyState[pygame.K_d] and self.rect.x < LIMIT_RIGHT:
-            self.rect.x += self.speedx
+            self.rect.x += self.speedx * (self.stamina / self.energy)
+            if not pressed:
+                self.stamina *= 0.9999
         # Up arrow
         if keyState[pygame.K_w] and self.rect.y > LIMIT_TOP:
-            self.rect.y -= self.speedy
+            self.rect.y -= self.speedy * (self.stamina / self.energy)
+            if not pressed:
+                self.stamina *= 0.9999
         # Down arrow
         if keyState[pygame.K_s] and self.rect.y < LIMIT_TOP_NET:
-            self.rect.y += self.speedy   
+            self.rect.y += self.speedy * (self.stamina / self.energy)
+            if not pressed:
+                self.stamina *= 0.9999
 
 
 # Class for Top player
 class Bottom_player(Player):
 
-    def __init__(self, speed, forcex, forcey):
+    def __init__(self, speed, force, energy):
         # Initializes Bottom Agent with it's pos, speed and image
-        super().__init__(speed, forcex, forcey, images.robert)
+        super().__init__(speed, force, energy, images.robert)
         # Position the image -> agent
         self.rect.center = BOTTOM_POS
     
@@ -82,21 +132,34 @@ class Bottom_player(Player):
     def update(self):
         # Get key pressed
         keyState = pygame.key.get_pressed()
+        pressed = False
 
+        # New rec pos adds the amount of speed * the percentage of energy still has
         # Left arrow
         if keyState[pygame.K_LEFT] and self.rect.x > LIMIT_LEFT:
-            self.rect.x -= self.speedx
+            self.rect.x -= self.speedx * (self.stamina / self.energy)
+            pressed = True
+            self.stamina *= 0.9999
         # Right arrow
         if keyState[pygame.K_RIGHT] and self.rect.x < LIMIT_RIGHT:
-            self.rect.x += self.speedx
+            self.rect.x += self.speedx * (self.stamina / self.energy)
+            if not pressed:
+                self.stamina *= 0.9999
         # Up arrow
         if keyState[pygame.K_UP] and self.rect.y > LIMIT_BOTTOM_NET:
-            self.rect.y -= self.speedy
+            self.rect.y -= self.speedy * (self.stamina / self.energy)
+            if not pressed:
+                self.stamina *= 0.9999
         # Down arrow
         if keyState[pygame.K_DOWN] and self.rect.y < LIMIT_BOT:
-            self.rect.y += self.speedy
+            self.rect.y += self.speedy * (self.stamina / self.energy)
+            if not pressed:
+                self.stamina *= 0.9999
+        print(self.stamina)
+        
 
 
+# Ball class
 class Ball(pygame.sprite.Sprite):
 
     def __init__(self):
@@ -111,7 +174,7 @@ class Ball(pygame.sprite.Sprite):
     # bottom players stroke
         if isinstance(player, Bottom_player):
             # region 1 of the court
-            speedy = -player.force
+            speedy = -player.choose_force()
             if LEFT_FIELD[0] <= self.rect.x <= LEFT_FIELD[1]:
                 if keyState[pygame.K_n]:
                     return (-rnd.uniform(0,1), speedy)
@@ -138,7 +201,7 @@ class Ball(pygame.sprite.Sprite):
         
         # top players stroke
         else:
-            speedy = player.force
+            speedy = player.choose_force()
             if LEFT_FIELD[0] <= self.rect.x < 275:
                 if keyState[pygame.K_r]:
                     return (-rnd.uniform(0,1), speedy)
