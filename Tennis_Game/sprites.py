@@ -245,7 +245,6 @@ class Ball(pygame.sprite.Sprite):
 
         #Make the ball slow down
         self.speedy *=  0.99
-        self.speedx *= 0.99
         self.rect = self.rect.move(self.speedx, self.speedy)
 
         # say no one has won yet
