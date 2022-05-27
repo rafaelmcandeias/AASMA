@@ -105,7 +105,7 @@ class Ball(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.speedx = 0
         self.speedy = 0
-        self.serve_flag = False
+        self.serve_flag = True
     
     def get_stroke_speed(self, keyState, player):
     # bottom players stroke
@@ -168,14 +168,23 @@ class Ball(pygame.sprite.Sprite):
         keyState = pygame.key.get_pressed()
 
         # check if point over and who won
-        # if on the bottom side
-        #if self.rect.y > LIMIT_BOTTOM_NET and (self.rect.x > LIMIT_RIGHT or self.rect.x < LIMIT_LEFT or self.rect.y > LIMIT_BOT):
-            # add return to who won point
-            # return top
-            
-        #if self.rect.y < LIMIT_BOTTOM_NET and (self.rect.x > LIMIT_RIGHT or self.rect.x < LIMIT_LEFT or self.rect.y < LIMIT_TOP):
-            #print("hello")
-            # return bot
+        # the bottom side won
+        if (self.rect.x > LIMIT_RIGHT or self.rect.x < LIMIT_LEFT or self.rect.y < LIMIT_TOP) or (not self.serve_flag and abs(self.speedy) < 0.5 and self.rect.y < LIMIT_BOTTOM_NET):
+            self.speedx = 0
+            self.speedy = 0
+            self.rect.x = 0
+            self.rect.y = 0
+            self.serve_flag = True
+            return 1
+        
+        # top side won
+        if (self.rect.x > LIMIT_RIGHT or self.rect.x < LIMIT_LEFT or self.rect.y > LIMIT_BOT) or (not self.serve_flag and abs(self.speedy) < 0.5 and self.rect.y > LIMIT_BOTTOM_NET):   
+            self.speedx = 0
+            self.speedy = 0
+            self.rect.x = 0
+            self.rect.y = 0
+            self.serve_flag = True
+            return 2
 
         # checks if player served
         if (keyState[pygame.K_PERIOD] and bottom_player.rect.y > 520) or (keyState[pygame.K_TAB] and top_player.rect.y < 20):
@@ -240,4 +249,4 @@ class Ball(pygame.sprite.Sprite):
         self.rect = self.rect.move(self.speedx, self.speedy)
 
         # say no one has won yet
-        # return 0  
+        return 0

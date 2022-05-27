@@ -37,7 +37,7 @@ while startGame == False:
 
 
 #Add players
-top_player = Top_player(5, 5, 3)
+top_player = Top_player(5, 4, 3)
 bottom_player = Bottom_player(2.25, 10, 3)
 
 # Tennis ball
@@ -52,21 +52,16 @@ all_sprites.add(top_player)
 carryOn = True
 clock = pygame.time.Clock()
 
+# init scores
+bottom_player_score = 0
+top_player_score = 0
 
-#Declare global scoring variables so that they can be used within the loop
-global score
-score = 0
-global score2
-score2 = 0
-global setScore
-setScore = 0
-global setScore2
-setScore2 = 0
-
-stops = 0
-ball_is_stopped = False
-stops2 = 0
-ball_is_stopped2 = False
+def restart_player_position():
+    bottom_player.rect.x = 442
+    bottom_player.rect.y = 524
+    top_player.rect.x = 202
+    top_player.rect.y = 40
+    pygame.time.wait(750)
 
 #Main game loop
 while carryOn:
@@ -74,131 +69,35 @@ while carryOn:
     font = pygame.font.Font('freesansbold.ttf', 32)
     screen.fill(OUT)
 
+    # has someone won?
+    if bottom_player_score == 15 or top_player_score == 15:
+        carryOn = False
+
+    # update 
     top_player.update()
     bottom_player.update()
     point = tennisBall.update(bottom_player, top_player)
 
     # bottom player won
-    if point == 0:
+    if point == 1: 
+        bottom_player_score += 1
+        restart_player_position()
 
     # top player won
-    if point == 1:
-    
-    # if point is still going 
     if point == 2:
+        top_player_score += 1
+        restart_player_position()
 
-
-
-
-
-
-    epsilonComp = .2
-    #Checks to see if the top player's shot made it over the net
-    if tennisBall.rect.y > 325:
-        #Checks to make sure it's in bounds
-        if 175 < tennisBall.rect.x < 575:
-            if abs(tennisBall.speedx) > epsilonComp and abs(tennisBall.speedy) > epsilonComp:
-                ball_is_stopped = False
-            elif abs(tennisBall.speedx) < epsilonComp and abs(tennisBall.speedy) < epsilonComp:
-                if not ball_is_stopped:
-                    stops += 1
-                ball_is_stopped = True
-                if stops == 2:
-                    score = 15
-                if stops == 3:
-                    score = 30
-                if stops == 4:
-                    score = 40
-                if stops == 5:
-                    score = 0
-                    score2 = 0
-                    stops = 1
-                    setScore += 1
-                    stops2 = 0
-
-        else:
-            #If the shot was not in bounds, the bottom player scores a point
-            if abs(tennisBall.speedx) > epsilonComp and abs(tennisBall.speedy) > epsilonComp:
-                ball_is_stopped2 = False
-            elif abs(tennisBall.speedx) < epsilonComp and abs(tennisBall.speedy) < epsilonComp:
-                if not ball_is_stopped2:
-                    stops2 += 1
-                ball_is_stopped2 = True
-                if stops2 == 1:
-                    score2 = 15
-                if stops2 == 2:
-                    score2 = 30
-                if stops2 == 3:
-                    score2 = 40
-                if stops2 == 4:
-                    score2 = 0
-                    score = 0
-                    setScore2 += 1
-                    stops2 = 0
-                    stops = 1
-
-    #Checks to see if the bottom player's shot made it over the net
-    elif tennisBall.rect.y < 325:
-        if 175 < tennisBall.rect.x < 575:
-            if abs(tennisBall.speedx) > epsilonComp and abs(tennisBall.speedy) > epsilonComp:
-                ball_is_stopped2 = False
-            elif abs(tennisBall.speedx) < epsilonComp and abs(tennisBall.speedy) < epsilonComp:
-                if not ball_is_stopped2:
-                    stops2 += 1
-                ball_is_stopped2 = True
-                if stops2 == 1:
-                    score2 = 15
-                if stops2 == 2:
-                    score2 = 30
-                if stops2 == 3:
-                    score2 = 40
-                if stops2 == 4:
-                    score2 = 0
-                    score = 0
-                    setScore2 += 1
-                    stops2 = 0
-                    stops = 1
-
-        else:
-            #If the shot was not in bounds, the top player scores a point
-            if abs(tennisBall.speedx) > epsilonComp and abs(tennisBall.speedy) > epsilonComp:
-                ball_is_stopped = False
-            elif abs(tennisBall.speedx) < epsilonComp and abs(tennisBall.speedy) < epsilonComp:
-                if not ball_is_stopped:
-                    stops += 1
-                ball_is_stopped = True
-                if stops == 2:
-                    score = 15
-                if stops == 3:
-                    score = 30
-                if stops == 4:
-                    score = 40
-                if stops == 5:
-                    score = 0
-                    score2 = 0
-                    setScore += 1
-                    stops = 1
-                    stop2 = 0
-
+    
     #Render both scoreboards
-    scorebox = font.render(str(score), True, WHITE, BLACK)
+    scorebox = font.render(str(top_player_score), True, WHITE, BLACK)
     scoreRect = scorebox.get_rect()
     scoreRect.center = (625, 50)
     screen.blit(scorebox, scoreRect)
-    scorebox2 = font.render(str(score2), True, WHITE, BLACK)
+    scorebox2 = font.render(str(bottom_player_score), True, WHITE, BLACK)
     scoreRect2 = scorebox2.get_rect()
     scoreRect2.center = (625, 600)
     screen.blit(scorebox2, scoreRect2)
-
-    setbox = font.render(str(setScore), True, WHITE, BLACK)
-    setrect = setbox.get_rect()
-    setrect.center = (625, 175)
-    screen.blit(setbox, setrect)
-    setbox2 = font.render(str(setScore2), True, WHITE, BLACK)
-    setrect2 = setbox2.get_rect()
-    setrect2.center = (625, 475)
-    screen.blit(setbox2, setrect2)
-
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -206,10 +105,6 @@ while carryOn:
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
                 carryOn = False
-
-    bottom_player.update()
-    top_player.update()
-    tennisBall.update(bottom_player, top_player)
 
     #All the court lines drawn here in the main loop
 
