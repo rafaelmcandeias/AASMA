@@ -76,7 +76,21 @@ while carryOn:
 
     top_player.update()
     bottom_player.update()
-    tennisBall.update(bottom_player, top_player)
+    point = tennisBall.update(bottom_player, top_player)
+
+    # bottom player won
+    if point == 0:
+
+    # top player won
+    if point == 1:
+    
+    # if point is still going 
+    if point == 2:
+
+
+
+
+
 
     epsilonComp = .2
     #Checks to see if the top player's shot made it over the net
