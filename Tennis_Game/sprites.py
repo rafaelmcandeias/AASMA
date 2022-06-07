@@ -18,9 +18,8 @@ BOTTOM_POS = (442, 524)
 TOP_POS = (202, 40)
 
 # Vars to declare zones in the field
-LEFT_FIELD = (175, 274.999)
-MIDDLE_FIELD = (275, 474.999)
-RIGHT_FIELD = (475, 575)
+LEFT_FIELD = 175
+MIDDLE_FIELD = (275, 475)
 
 # Vars to divide stamina status
 # These divisions are universal.
@@ -60,7 +59,7 @@ class Player(pygame.sprite.Sprite):
     
     # Function to reduce amount of stamina given applied force
     def lose_stamina(self, force):
-        self.stamina -= (force / self.force) * 0.05
+        self.stamina -= (force / self.force) * 0.005
 
     # Function that returns the force choosen.
     # Choosing a force depends on stamina
@@ -173,58 +172,67 @@ class Ball(pygame.sprite.Sprite):
     # bottom players stroke
         if isinstance(player, Bottom_player):
             # region 1 of the court
-            speedy = -player.choose_force()
-            if LEFT_FIELD[0] <= self.rect.x <= LEFT_FIELD[1]:
+            if LEFT_FIELD <= self.rect.x < MIDDLE_FIELD[0]:
                 if keyState[pygame.K_n]:
-                    return (-rnd.uniform(0,1), speedy)
+                    speedx = -rnd.uniform(0,1)
                 elif keyState[pygame.K_m]:
-                    return (rnd.uniform(4,6), speedy)
+                    speedx = rnd.uniform(4,6)
                 else:
-                    return (0, speedy)
+                    speedx = 0
+            
             # region 2 of the court
-            if MIDDLE_FIELD[0] <= self.rect.x <= MIDDLE_FIELD[1]:
+            elif MIDDLE_FIELD[0] <= self.rect.x < MIDDLE_FIELD[1]:
                 if keyState[pygame.K_n]:
-                    return (-rnd.uniform(2,3), speedy)
+                    speedx = -rnd.uniform(2,3)
                 elif keyState[pygame.K_m]:
-                    return (rnd.uniform(2,3), speedy)
+                    speedx = rnd.uniform(2,3)
                 else:
-                    return (0, speedy)
+                    speedx = 0
+            
             # region 3 of the court
-            if RIGHT_FIELD[0] <= self.rect.x <= RIGHT_FIELD[1]:
+            else:
                 if keyState[pygame.K_n]:
-                    return (-rnd.uniform(4,6), speedy)
+                    speedx = -rnd.uniform(4,6)
                 elif keyState[pygame.K_m]:
-                    return (rnd.uniform(0,1), speedy)
+                    speedx = rnd.uniform(0,1)
                 else:
-                    return (0, speedy)
+                    speedx = 0
+            
+            speedy = -player.choose_force() - speedx            
+            return (speedx, speedy)
         
         # top players stroke
         else:
-            speedy = player.choose_force()
-            if LEFT_FIELD[0] <= self.rect.x < 275:
+            if LEFT_FIELD <= self.rect.x < MIDDLE_FIELD[0]:
                 if keyState[pygame.K_r]:
-                    return (-rnd.uniform(0,1), speedy)
+                    speedx = -rnd.uniform(0,1)
                 elif keyState[pygame.K_t]:
-                    return (rnd.uniform(4,6), speedy)
+                    speedx = rnd.uniform(4,6)
                 else:
-                    return (0, speedy)
-            # region 2 of the court
-            if MIDDLE_FIELD[0] <= self.rect.x <= MIDDLE_FIELD[1]:
-                if keyState[pygame.K_r]:
-                    return (-rnd.uniform(2,3), speedy)
-                elif keyState[pygame.K_t]:
-                    return (rnd.uniform(2,3), speedy)
-                else:
-                    return (0, speedy)
-            # region 3 of the court
-            if RIGHT_FIELD[0] <= self.rect.x <= RIGHT_FIELD[1]:
-                if keyState[pygame.K_r]:
-                    return (-rnd.uniform(4,6), speedy)
-                elif keyState[pygame.K_t]:
-                    return (rnd.uniform(0,1), speedy)
-                else:
-                    return (0, speedy)
+                    speedx = 0
 
+            # region 2 of the court
+            elif MIDDLE_FIELD[0] <= self.rect.x < MIDDLE_FIELD[1]:
+                if keyState[pygame.K_r]:
+                    speedx = -rnd.uniform(2,3)
+                elif keyState[pygame.K_t]:
+                    speedx = rnd.uniform(2,3)
+                else:
+                    speedx = 0
+            
+            # region 3 of the court
+            else:
+                if keyState[pygame.K_r]:
+                    speedx = -rnd.uniform(4,6)
+                elif keyState[pygame.K_t]:
+                    speedx = rnd.uniform(0,1)
+                else:
+                    speedx = 0
+            
+            speedy = player.choose_force() - speedx            
+            return (speedx, speedy)
+
+    # Updates ball movement
     def update(self, bottom_player, top_player):
 
         keyState = pygame.key.get_pressed()
@@ -253,12 +261,11 @@ class Ball(pygame.sprite.Sprite):
             self.serve_flag = True
         
         # checks to see if ball has passed the net after player served
-        if self.serve_flag:
-            if 300 < self.rect.y < 350:
-                self.serve_flag = False
+        if self.serve_flag and 300 < self.rect.y < 350:
+            self.serve_flag = False
 
         # bottom player serves
-        if self.serve_flag and keyState[pygame.K_PERIOD]:
+        elif self.serve_flag and keyState[pygame.K_PERIOD]:
             bottom_player.image = images.robert_serve
             self.rect.center = (bottom_player.rect.x + 15, bottom_player.rect.y)
             self.speedy = -rnd.uniform(6,9)
@@ -270,7 +277,7 @@ class Ball(pygame.sprite.Sprite):
                 self.speedx = -rnd.uniform(2,5)
         
         # top player serves
-        if self.serve_flag and keyState[pygame.K_TAB]:
+        elif self.serve_flag and keyState[pygame.K_TAB]:
             self.rect.center = (top_player.rect.x, top_player.rect.y + 40)
             top_player.image = images.camden_serve
             self.speedy = rnd.uniform(6,9)   
@@ -282,27 +289,27 @@ class Ball(pygame.sprite.Sprite):
                 self.speedx = -rnd.uniform(2,5)
         
         # bottom player hits the ball
-        if self.rect.colliderect(bottom_player) and not self.serve_flag:
+        elif self.rect.colliderect(bottom_player) and not self.serve_flag:
             effect = pygame.mixer.Sound('tennisserve.wav')
             effect.play(0)
             self.speedx, self.speedy = self.get_stroke_speed(keyState, bottom_player)
             # forehand animation
-            if self.rect.colliderect(bottom_player) and self.rect.x > bottom_player.rect.x + 10:
+            if self.rect.x > bottom_player.rect.x + 10:
                 bottom_player.image = images.robert_forehand
             #backhand animation
-            if self.rect.colliderect(bottom_player) and self.rect.x < bottom_player.rect.x - 10:
+            elif self.rect.x < bottom_player.rect.x - 10:
                 bottom_player.image = images.robert_backhand
         
         # top player hits the ball
-        if self.rect.colliderect(top_player) and not self.serve_flag:
+        elif self.rect.colliderect(top_player) and not self.serve_flag:
             effect = pygame.mixer.Sound('tennisserve.wav')
             effect.play(0)
             self.speedx, self.speedy = self.get_stroke_speed(keyState, top_player)
             # forehand animation
-            if self.rect.colliderect(top_player) and self.rect.x > top_player.rect.x + 10:
+            if self.rect.x > top_player.rect.x + 10:
                 top_player.image = images.camden_forehand
             #backhand animation
-            if self.rect.colliderect(top_player) and self.rect.x < top_player.rect.x - 10:
+            if self.rect.x < top_player.rect.x - 10:
                 top_player.image = images.camden_backhand
 
         #Make the ball slow down
