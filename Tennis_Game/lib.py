@@ -1,4 +1,5 @@
 import pygame
+import operator
 from sprites import Top_player, Bottom_player, Ball
 
 # Define some colors
@@ -60,7 +61,7 @@ def read_file():
             info = line.split(" ")
             name, speed, force, energy = info[0], info[1], info[2], info[3]
             # agents = {'Rodrigo':('Rodrigo', 4, 3, 4), ...}
-            agents[name] = (name, int(speed), int(force), float(energy))
+            agents[name] = (name, float(speed), float(force), float(energy))
     return agents
 
 
@@ -172,3 +173,16 @@ def play(screen, top_player, bottom_player, tennisBall, all_sprites):
         all_sprites.draw(screen)
         pygame.display.update()
         clock.tick(60)
+    
+    return top_player_score, bottom_player_score
+
+
+# Function to print the scoreboard from highest to lowest score
+def print_scoreboard(scores):
+    sorted_scores = sorted(scores.items(), key=operator.itemgetter(1), reverse=True)
+    print("===========================")
+    print("         SCOREBOARD        ")
+    print("===========================")
+    for name, score in sorted_scores:
+        print("||      " + name + ": " + str(score) + "      ||")
+    print("===========================")
