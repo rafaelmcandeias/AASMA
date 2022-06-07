@@ -35,8 +35,10 @@ HIGH_STAMINA = 1
 # Player Class Super class for top and bottom players
 class Player(pygame.sprite.Sprite):
 
-    def __init__(self, speed, force, energy, image):
+    def __init__(self, name, speed, force, energy, image):
         pygame.sprite.Sprite.__init__(self)
+        # Agent's identifier
+        self.name = name
         # Image for the agent
         self.image = image
         # Used for hit boxing. An agent is a rectangule in pixels
@@ -87,8 +89,8 @@ class Player(pygame.sprite.Sprite):
 # Class for Top player
 class Top_player(Player):
 
-    def __init__(self, speed, force, energy):
-        super().__init__(speed, force, energy, images.camden)
+    def __init__(self, info):
+        super().__init__(info[0], info[1], info[2], info[3], images.camden)
         # Position the image -> agent
         self.rect.center = TOP_POS
     
@@ -106,25 +108,25 @@ class Top_player(Player):
         if keyState[pygame.K_d] and self.rect.x < LIMIT_RIGHT:
             self.rect.x += self.speedx * (self.stamina / self.energy)
             if not pressed:
-                self.stamina *= 0.9999
+                self.stamina *= 0.9999999999
         # Up arrow
         if keyState[pygame.K_w] and self.rect.y > LIMIT_TOP:
             self.rect.y -= self.speedy * (self.stamina / self.energy)
             if not pressed:
-                self.stamina *= 0.9999
+                self.stamina *= 0.9999999999
         # Down arrow
         if keyState[pygame.K_s] and self.rect.y < LIMIT_TOP_NET:
             self.rect.y += self.speedy * (self.stamina / self.energy)
             if not pressed:
-                self.stamina *= 0.9999
+                self.stamina *= 0.9999999999
 
 
 # Class for Top player
 class Bottom_player(Player):
 
-    def __init__(self, speed, force, energy):
+    def __init__(self, info):
         # Initializes Bottom Agent with it's pos, speed and image
-        super().__init__(speed, force, energy, images.robert)
+        super().__init__(info[0], info[1], info[2], info[3], images.robert)
         # Position the image -> agent
         self.rect.center = BOTTOM_POS
     
@@ -139,22 +141,22 @@ class Bottom_player(Player):
         if keyState[pygame.K_LEFT] and self.rect.x > LIMIT_LEFT:
             self.rect.x -= self.speedx * (self.stamina / self.energy)
             pressed = True
-            self.stamina *= 0.9999
+            self.stamina *= 0.9999999999
         # Right arrow
         if keyState[pygame.K_RIGHT] and self.rect.x < LIMIT_RIGHT:
             self.rect.x += self.speedx * (self.stamina / self.energy)
             if not pressed:
-                self.stamina *= 0.9999
+                self.stamina *= 0.9999999999
         # Up arrow
         if keyState[pygame.K_UP] and self.rect.y > LIMIT_BOTTOM_NET:
             self.rect.y -= self.speedy * (self.stamina / self.energy)
             if not pressed:
-                self.stamina *= 0.9999
+                self.stamina *= 0.9999999999
         # Down arrow
         if keyState[pygame.K_DOWN] and self.rect.y < LIMIT_BOT:
             self.rect.y += self.speedy * (self.stamina / self.energy)
             if not pressed:
-                self.stamina *= 0.9999
+                self.stamina *= 0.9999999999
 
 # Ball class
 class Ball(pygame.sprite.Sprite):
