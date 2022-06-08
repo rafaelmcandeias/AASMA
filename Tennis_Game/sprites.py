@@ -3,6 +3,7 @@ import images
 import numpy as np
 import numpy.random as rnd
 import random
+from datetime import datetime
 
 # ------------------------------------------------------------
 
@@ -18,7 +19,7 @@ BOTTOM_POS = (442, 524)
 TOP_POS = (202, 40)
 
 # Vars to declare zones in the field
-LEFT_FIELD = 175
+LEFT_FIELD = 0.99175
 MIDDLE_FIELD = (275, 475)
 
 # Vars to divide stamina status
@@ -28,6 +29,13 @@ NO_STAMINA = 0
 LOW_STAMINA = 0.25
 MID_STAMINA = 0.75
 HIGH_STAMINA = 1
+
+# Vars to define net height
+NET_HEIGHT = 1.07
+
+# Vars for physichs
+AIR_RESISTANCE = 0.99
+GRAVITY = 9.8
 
 # ------------------------------------------------------------
 
@@ -157,6 +165,7 @@ class Bottom_player(Player):
             if not pressed:
                 self.stamina *= 0.9999999999
 
+
 # Ball class
 class Ball(pygame.sprite.Sprite):
 
@@ -166,8 +175,12 @@ class Ball(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.speedx = 0
         self.speedy = 0
+        self.speedz = 0
         self.serve_flag = True
+        # Ball height.
+        self.z = NET_HEIGHT
     
+
     def get_stroke_speed(self, keyState, player):
     # bottom players stroke
         if isinstance(player, Bottom_player):
@@ -197,9 +210,8 @@ class Ball(pygame.sprite.Sprite):
                     speedx = rnd.uniform(0,1)
                 else:
                     speedx = 0
-            
-            speedy = -player.choose_force() - speedx            
-            return (speedx, speedy)
+
+            force = -player.choose_force()
         
         # top players stroke
         else:
@@ -229,12 +241,16 @@ class Ball(pygame.sprite.Sprite):
                 else:
                     speedx = 0
             
-            speedy = player.choose_force() - speedx            
-            return (speedx, speedy)
+            force = player.choose_force()
+        
+        speedy = (force - speedx) * rnd.uniform(0.45, 0.95)
+        speedz = force - speedx - speedy
+        return (speedx, speedy, speedz)
+
 
     # Updates ball movement
     def update(self, bottom_player, top_player):
-
+        start = datetime.now()
         keyState = pygame.key.get_pressed()
 
         # check if point over and who won
@@ -292,7 +308,10 @@ class Ball(pygame.sprite.Sprite):
         elif self.rect.colliderect(bottom_player) and not self.serve_flag:
             effect = pygame.mixer.Sound('tennisserve.wav')
             effect.play(0)
-            self.speedx, self.speedy = self.get_stroke_speed(keyState, bottom_player)
+            # Reset ball's height
+            self.z = NET_HEIGHT
+            # Get ball speeds
+            self.speedx, self.speedy, self.speedz = self.get_stroke_speed(keyState, bottom_player)
             # forehand animation
             if self.rect.x > bottom_player.rect.x + 10:
                 bottom_player.image = images.robert_forehand
@@ -304,7 +323,10 @@ class Ball(pygame.sprite.Sprite):
         elif self.rect.colliderect(top_player) and not self.serve_flag:
             effect = pygame.mixer.Sound('tennisserve.wav')
             effect.play(0)
-            self.speedx, self.speedy = self.get_stroke_speed(keyState, top_player)
+            # Reset ball's height
+            self.z = NET_HEIGHT
+            # Get ball speeds
+            self.speedx, self.speedy, self.speedz = self.get_stroke_speed(keyState, top_player)
             # forehand animation
             if self.rect.x > top_player.rect.x + 10:
                 top_player.image = images.camden_forehand
@@ -312,9 +334,16 @@ class Ball(pygame.sprite.Sprite):
             if self.rect.x < top_player.rect.x - 10:
                 top_player.image = images.camden_backhand
 
+        # Calculate time 
+        end = datetime.now()
+        time = end - start
+        seconds = time.total_seconds()
+
         #Make the ball slow down
-        self.speedy *=  0.99
+        self.speedy -= AIR_RESISTANCE * seconds
+        self.z += (self.speedz * seconds) - ((GRAVITY/2) * (seconds**2))
         self.rect = self.rect.move(self.speedx, self.speedy)
+        print(self.z)
 
         # say no one has won yet
         return 0
