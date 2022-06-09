@@ -129,6 +129,10 @@ class Top_player(Player):
             self.rect.y += self.speedy * (self.stamina / self.energy)
             if not pressed:
                 self.stamina *= 0.9999999999
+    
+    # Puts agent in starting position
+    def restart_position(self):
+        self.rect.move(TOP_POS)
 
 
 # Class for Top player
@@ -167,6 +171,10 @@ class Bottom_player(Player):
             self.rect.y += self.speedy * (self.stamina / self.energy)
             if not pressed:
                 self.stamina *= 0.9999999999
+    
+    # Puts agent in starting position
+    def restart_position(self):
+        self.rect.move(BOTTOM_POS)
 
 
 # Ball class
@@ -371,3 +379,11 @@ class Ball(pygame.sprite.Sprite):
 
         # say no one has won yet
         return 0
+
+
+    # Method to place ball next to server
+    def restart_position(self, server):
+        if isinstance(server, Top_player):
+            self.rect = self.rect.move(TOP_POS[0] - 30, TOP_POS[1] + 10)
+        else:
+            self.rect = self.rect.move(BOTTOM_POS[0] + 10, BOTTOM_POS[1] + 10)

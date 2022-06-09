@@ -49,15 +49,6 @@ def start_screen(screen):
             pygame.display.flip()
 
 
-# Function to replace the agent's at the serving position 
-def restart_player_position(top_player, bottom_player):
-    bottom_player.rect.x = 442
-    bottom_player.rect.y = 524
-    top_player.rect.x = 202
-    top_player.rect.y = 40
-    pygame.time.wait(750)
-
-
 # Reads two lines from Agents.txt and gets info from it
 def read_file():
     agents_file = open("Agents.txt", "r")
@@ -88,6 +79,14 @@ def create_objects(agents, name, name2):
     all_sprites.add(top_player)
 
     return top_player, bottom_player, tennisBall, all_sprites
+
+
+# Function to replace the agent's at the serving position 
+def restart_positions(top_player, bottom_player, tennisBall, server):
+    top_player.restart_position()
+    bottom_player.restart_position()
+    tennisBall.restart_position(server)
+    pygame.time.wait(750)
 
 
 # Changes player to serve
@@ -129,9 +128,8 @@ def play(screen, top_player, bottom_player, tennisBall, all_sprites):
             else:
                 top_player_score += 1
             # Update conditions
-            restart_player_position(top_player, bottom_player)
             server = change_server(top_player, bottom_player, server)
-            print(server.name)
+            restart_positions(top_player, bottom_player, tennisBall, server)
 
         #Render both scoreboards
         scorebox = font.render(str(top_player_score), True, WHITE, BLACK)
