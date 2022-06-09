@@ -3,7 +3,6 @@ import images
 import numpy as np
 import numpy.random as rnd
 import random
-from datetime import datetime
 
 # ------------------------------------------------------------
 
@@ -13,14 +12,16 @@ LIMIT_TOP_NET = 255
 LIMIT_BOTTOM_NET  = 300
 LIMIT_BOT = 587
 LIMIT_RIGHT = 648
+# Vars to declare zones in the field
+LEFT_FIELD = 0.99175
+MIDDLE_FIELD = (275, 475)
 
 # Vars for starting positions
 BOTTOM_POS = (442, 524)
 TOP_POS = (202, 40)
-
-# Vars to declare zones in the field
-LEFT_FIELD = 0.99175
-MIDDLE_FIELD = (275, 475)
+# Vars for point winners
+TOP_WON = 2
+BOT_WON = 1
 
 # Vars to divide stamina status
 # These divisions are universal.
@@ -36,6 +37,8 @@ NET_HEIGHT = 1.07
 # Vars for physichs
 AIR_RESISTANCE = 0.99
 GRAVITY = 9.8
+# Assume constant time passes between frames. Converted to milli seconds
+TIME = 2.9e-5 * 1e5
 
 # ------------------------------------------------------------
 
@@ -249,8 +252,7 @@ class Ball(pygame.sprite.Sprite):
 
 
     # Updates ball movement
-    def update(self, bottom_player, top_player):
-        start = datetime.now()
+    def update(self, bottom_player, top_player, server):
         keyState = pygame.key.get_pressed()
 
         # check if point over and who won
@@ -261,7 +263,7 @@ class Ball(pygame.sprite.Sprite):
             self.rect.x = 0
             self.rect.y = 0
             self.serve_flag = True
-            return 1
+            return BOT_WON
         
         # top side won
         if (self.rect.x > LIMIT_RIGHT or self.rect.x < LIMIT_LEFT or self.rect.y > LIMIT_BOT) or (not self.serve_flag and abs(self.speedy) < 0.5 and self.rect.y > LIMIT_BOTTOM_NET):   
@@ -270,7 +272,7 @@ class Ball(pygame.sprite.Sprite):
             self.rect.x = 0
             self.rect.y = 0
             self.serve_flag = True
-            return 2
+            return TOP_WON
 
         # checks if player served
         if (keyState[pygame.K_PERIOD] and bottom_player.rect.y > 520) or (keyState[pygame.K_TAB] and top_player.rect.y < 20):
@@ -334,16 +336,38 @@ class Ball(pygame.sprite.Sprite):
             if self.rect.x < top_player.rect.x - 10:
                 top_player.image = images.camden_backhand
 
-        # Calculate time 
-        end = datetime.now()
-        time = end - start
-        seconds = time.total_seconds()
+        # Updates the ball position
+        posx, posy = 0, 0
+        # Updates posx ball
+        # Movement is only updated when it has a speed
+        if self.speedx != 0:
+            # Air resistance has always direction opposed to speed
+            if self.speedx - (AIR_RESISTANCE * TIME) > 0:
+                self.speedx -= AIR_RESISTANCE * TIME
+            if self.speedx + (AIR_RESISTANCE * TIME) < 0:
+                self.speedx += AIR_RESISTANCE * TIME
+            posx = self.speedx * TIME
+        
+        # Updates posy ball
+        if self.speedy != 0:
+            # Air resistance has always direction opposed to speed
+            if self.speedy - (AIR_RESISTANCE * TIME) > 0:
+                self.speedy -= AIR_RESISTANCE * TIME
+            elif self.speedy + (AIR_RESISTANCE * TIME) < 0:
+                self.speedy += AIR_RESISTANCE * TIME
+            posy = self.speedy * TIME 
+        
+        # Updates posz ball
+        # Gravity is always reducing z
+        if self.speedz != 0:
+            self.speedz -= (GRAVITY/2) * (TIME**2)
+            self.z += (self.speedz * TIME)
 
-        #Make the ball slow down
-        self.speedy -= AIR_RESISTANCE * seconds
-        self.speedx -= AIR_RESISTANCE * seconds
-        self.z += (self.speedz * seconds) - ((GRAVITY/2) * (seconds**2))
-        self.rect = self.rect.move(self.speedx, self.speedy)
+        # Updates object only if at least one of the speeds is diff 0
+        if self.speedx != 0 or self.speedy != 0 or self.speedz != 0:
+            print("SPEED:", self.speedx, self.speedy, self.speedz)
+            print("POS:", posx, posy, self.z)
+            self.rect = self.rect.move(posx, posy)
 
         # say no one has won yet
         return 0

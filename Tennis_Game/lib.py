@@ -2,6 +2,8 @@ import pygame
 import operator
 from sprites import Top_player, Bottom_player, Ball
 
+# ------------------------------------------------------------
+
 # Define some colors
 BLACK = (0, 0, 0)
 OUT = (193, 58, 34)
@@ -15,6 +17,11 @@ YELLOW = (255, 0, 255)
 TOP_INFO_POS = (75, 20)
 BOT_INFO_POS = (300, 300)
 
+# Vars for point winners
+TOP_WON = 2
+BOT_WON = 1
+
+# ------------------------------------------------------------
 
 #Create the screen
 def create_screen():
@@ -83,11 +90,19 @@ def create_objects(agents, name, name2):
     return top_player, bottom_player, tennisBall, all_sprites
 
 
+# Changes player to serve
+def change_server(top_player, bottom_player, server):
+    if server == top_player:
+        return bottom_player
+    return top_player
+
+
 #Main game loop
 def play(screen, top_player, bottom_player, tennisBall, all_sprites):
     # init scores
     bottom_player_score = 0
     top_player_score = 0
+    server = top_player
     
     carryOn = True
     clock = pygame.time.Clock()
@@ -103,17 +118,20 @@ def play(screen, top_player, bottom_player, tennisBall, all_sprites):
         # update 
         top_player.update()
         bottom_player.update()
-        point = tennisBall.update(bottom_player, top_player)
+        point = tennisBall.update(bottom_player, top_player, server)
 
-        # bottom player won
-        if point == 1: 
-            bottom_player_score += 1
+        # player scored
+        if point == BOT_WON or point == TOP_WON:
+            # bottom player won
+            if point == BOT_WON: 
+                bottom_player_score += 1
+            # top player won
+            else:
+                top_player_score += 1
+            # Update conditions
             restart_player_position(top_player, bottom_player)
-
-        # top player won
-        elif point == 2:
-            top_player_score += 1
-            restart_player_position(top_player, bottom_player)
+            server = change_server(top_player, bottom_player, server)
+            print(server.name)
 
         #Render both scoreboards
         scorebox = font.render(str(top_player_score), True, WHITE, BLACK)
