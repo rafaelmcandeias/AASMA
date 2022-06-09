@@ -341,9 +341,9 @@ class Ball(pygame.sprite.Sprite):
 
         #Make the ball slow down
         self.speedy -= AIR_RESISTANCE * seconds
+        self.speedx -= AIR_RESISTANCE * seconds
         self.z += (self.speedz * seconds) - ((GRAVITY/2) * (seconds**2))
         self.rect = self.rect.move(self.speedx, self.speedy)
-        print(self.z)
 
         # say no one has won yet
         return 0

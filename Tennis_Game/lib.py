@@ -98,7 +98,7 @@ def play(screen, top_player, bottom_player, tennisBall, all_sprites):
 
         # has someone won?
         if bottom_player_score == 15 or top_player_score == 15:
-            carryOn = False
+            break
 
         # update 
         top_player.update()
@@ -111,21 +111,9 @@ def play(screen, top_player, bottom_player, tennisBall, all_sprites):
             restart_player_position(top_player, bottom_player)
 
         # top player won
-        if point == 2:
+        elif point == 2:
             top_player_score += 1
             restart_player_position(top_player, bottom_player)
-
-        
-        # Render top info
-        top_stamina = font.render("Stamina", True, WHITE, BLACK)
-        top_stamina_rect = top_stamina.get_rect()
-        top_stamina_rect.center = TOP_INFO_POS
-        screen.blit(top_stamina, top_stamina_rect)
-        # Render bot info
-        bot_stamina = font.render("Stamina", True, WHITE, BLACK)
-        bot_stamina_rect = bot_stamina.get_rect()
-        bot_stamina_rect.center = BOT_INFO_POS
-        screen.blit(bot_stamina, bot_stamina_rect)
 
         #Render both scoreboards
         scorebox = font.render(str(top_player_score), True, WHITE, BLACK)
@@ -137,14 +125,13 @@ def play(screen, top_player, bottom_player, tennisBall, all_sprites):
         scoreRect2.center = (625, 600)
         screen.blit(scorebox2, scoreRect2)
 
+        # To exit game
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 carryOn = False
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     carryOn = False
-
-        #All the court lines drawn here in the main loop
 
         #Draw the court
         pygame.draw.rect(screen, COURT, [175, 75, 350, 500])
