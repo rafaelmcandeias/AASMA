@@ -18,8 +18,9 @@ TOP_INFO_POS = (75, 20)
 BOT_INFO_POS = (300, 300)
 
 # Vars for point winners
-TOP_WON = 2
 BOT_WON = 1
+TOP_WON = 2
+HIT = 3
 MAX_POINTS = 15
 
 # ------------------------------------------------------------
@@ -128,6 +129,7 @@ def play(screen, top_player, bottom_player, tennisBall, all_sprites):
     bottom_player_score = 0
     top_player_score = 0
     server = top_player
+    player_to_strike = bottom_player
     # flag to know when is to serve
     serve_flag = True
     
@@ -150,10 +152,17 @@ def play(screen, top_player, bottom_player, tennisBall, all_sprites):
             # Players and ball only move if there was a service
             top_player.update()
             bottom_player.update()
-            point = tennisBall.update(bottom_player, top_player)
+            point = tennisBall.update(player_to_strike)
+
+            # Player to strike striked the ball
+            if point == HIT:
+                if player_to_strike == bottom_player:
+                    player_to_strike = top_player
+                else:
+                    player_to_strike = bottom_player
 
             # player scored
-            if point == BOT_WON or point == TOP_WON:
+            elif point == BOT_WON or point == TOP_WON:
                 # bottom player won
                 if point == BOT_WON:
                     bottom_player_score += 1

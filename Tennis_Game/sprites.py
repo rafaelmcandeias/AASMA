@@ -20,8 +20,9 @@ MIDDLE_FIELD = (275, 475)
 BOTTOM_POS = (442, 524)
 TOP_POS = (202, 40)
 # Vars for point winners
-TOP_WON = 2
 BOT_WON = 1
+TOP_WON = 2
+HIT = 3
 
 # Vars to divide stamina status
 # These divisions are universal.
@@ -190,7 +191,6 @@ class Ball(pygame.sprite.Sprite):
         self.speedx = 0
         self.speedy = 0
         self.speedz = 0
-        self.serve_flag = True
         # Ball height.
         self.z = NET_HEIGHT
 
@@ -326,57 +326,54 @@ class Ball(pygame.sprite.Sprite):
 
 
     # Updates ball movement
-    def update(self, bottom_player, top_player):
+    def update(self, player_to_strike):
         keyState = pygame.key.get_pressed()
 
         # check if point over and who won
         # the bottom side won
-        if (self.rect.x > LIMIT_RIGHT or self.rect.x < LIMIT_LEFT or self.rect.y < LIMIT_TOP) or (not self.serve_flag and abs(self.speedy) < 0.5 and self.rect.y < LIMIT_BOTTOM_NET):
+        if (self.rect.x > LIMIT_RIGHT or self.rect.x < LIMIT_LEFT or self.rect.y < LIMIT_TOP) or (abs(self.speedy) < 0.5 and self.rect.y < LIMIT_BOTTOM_NET):
             self.speedx = 0
             self.speedy = 0
             self.rect.x = 0
             self.rect.y = 0
-            self.serve_flag = True
             return BOT_WON
         
         # top side won
-        if (self.rect.x > LIMIT_RIGHT or self.rect.x < LIMIT_LEFT or self.rect.y > LIMIT_BOT) or (not self.serve_flag and abs(self.speedy) < 0.5 and self.rect.y > LIMIT_BOTTOM_NET):   
+        if (self.rect.x > LIMIT_RIGHT or self.rect.x < LIMIT_LEFT or self.rect.y > LIMIT_BOT) or (abs(self.speedy) < 0.5 and self.rect.y > LIMIT_BOTTOM_NET):   
             self.speedx = 0
             self.speedy = 0
             self.rect.x = 0
             self.rect.y = 0
-            self.serve_flag = True
             return TOP_WON
         
-        # bottom player hits the ball
-        if self.rect.colliderect(bottom_player) and not self.serve_flag:
+        # Player to strike hits the ball
+        if self.rect.colliderect(player_to_strike):
             effect = pygame.mixer.Sound('tennisserve.wav')
             effect.play(0)
             # Reset ball's height
             self.z = NET_HEIGHT
             # Get ball speeds
-            self.speedx, self.speedy, self.speedz = self.get_stroke_speed(keyState, bottom_player)
+            self.speedx, self.speedy, self.speedz = self.get_stroke_speed(keyState, player_to_strike)
+            
+            # Get the correct image
+            if isinstance(player_to_strike, Bottom_player):
+                image_forehand = images.robert_forehand
+                image_backhand = images.robert_backhand
+            else:
+                image_forehand = images.camden_forehand
+                image_backhand = images.camden_backhand
+            
             # forehand animation
-            if self.rect.x > bottom_player.rect.x + 10:
-                bottom_player.image = images.robert_forehand
+            if self.rect.x > player_to_strike.rect.x + 10:
+                player_to_strike.image = image_forehand
             #backhand animation
-            elif self.rect.x < bottom_player.rect.x - 10:
-                bottom_player.image = images.robert_backhand
-        
-        # top player hits the ball
-        elif self.rect.colliderect(top_player) and not self.serve_flag:
-            effect = pygame.mixer.Sound('tennisserve.wav')
-            effect.play(0)
-            # Reset ball's height
-            self.z = NET_HEIGHT
-            # Get ball speeds
-            self.speedx, self.speedy, self.speedz = self.get_stroke_speed(keyState, top_player)
-            # forehand animation
-            if self.rect.x > top_player.rect.x + 10:
-                top_player.image = images.camden_forehand
-            #backhand animation
-            if self.rect.x < top_player.rect.x - 10:
-                top_player.image = images.camden_backhand
+            elif self.rect.x < player_to_strike.rect.x - 10:
+                player_to_strike.image = image_backhand
+
+            self.update_position()
+                
+            # To tell that the player stiked the ball
+            return HIT
 
         # Updates ball position, given it's speed
         self.update_position()
