@@ -39,7 +39,7 @@ NET_HEIGHT = 1.07
 AIR_RESISTANCE = 0.99
 GRAVITY = 9.8
 # Assume constant time passes between frames. Converted to milli seconds
-TIME = 2.9e-5 * 1e5
+TIME = 2.9
 
 # ------------------------------------------------------------
 
@@ -211,7 +211,7 @@ class Ball(pygame.sprite.Sprite):
                 elif keyState[pygame.K_m]:
                     speedx = rnd.uniform(4,6)
                 else:
-                    speedx = 0
+                    speedx = rnd.uniform(0, 0.5)
             
             # region 2 of the court
             elif MIDDLE_FIELD[0] <= self.rect.x < MIDDLE_FIELD[1]:
@@ -220,7 +220,7 @@ class Ball(pygame.sprite.Sprite):
                 elif keyState[pygame.K_m]:
                     speedx = rnd.uniform(2,3)
                 else:
-                    speedx = 0
+                    speedx = rnd.uniform(-0.5, 0.5)
             
             # region 3 of the court
             else:
@@ -229,7 +229,7 @@ class Ball(pygame.sprite.Sprite):
                 elif keyState[pygame.K_m]:
                     speedx = rnd.uniform(0,1)
                 else:
-                    speedx = 0
+                    speedx = rnd.uniform(-0.5, 0)
 
             force = -player.choose_force()
         
@@ -241,7 +241,7 @@ class Ball(pygame.sprite.Sprite):
                 elif keyState[pygame.K_t]:
                     speedx = rnd.uniform(4,6)
                 else:
-                    speedx = 0
+                    speedx = rnd.uniform(0, 0.5)
 
             # region 2 of the court
             elif MIDDLE_FIELD[0] <= self.rect.x < MIDDLE_FIELD[1]:
@@ -250,7 +250,7 @@ class Ball(pygame.sprite.Sprite):
                 elif keyState[pygame.K_t]:
                     speedx = rnd.uniform(2,3)
                 else:
-                    speedx = 0
+                    speedx = rnd.uniform(-0.5, 0.5)
             
             # region 3 of the court
             else:
@@ -259,12 +259,14 @@ class Ball(pygame.sprite.Sprite):
                 elif keyState[pygame.K_t]:
                     speedx = rnd.uniform(0,1)
                 else:
-                    speedx = 0
+                    speedx = rnd.uniform(-0.5, 0)
             
             force = player.choose_force()
         
-        speedy = (force - speedx) * rnd.uniform(0.45, 0.95)
-        speedz = force - speedx - speedy
+        speedy = (abs(force) - abs(speedx)) * rnd.uniform(0.45, 0.95)
+        if isinstance(player, Bottom_player):
+            speedy = -speedy
+        speedz = abs(force) - abs(speedx) - abs(speedy)
         return (speedx, speedy, speedz)
 
 
@@ -293,14 +295,14 @@ class Ball(pygame.sprite.Sprite):
         
         # Updates posz ball
         # Gravity is always reducing z
-        if self.speedz != 0:
+        if self.speedz != 0 and self.z > 0:
             self.speedz -= (GRAVITY/2) * (TIME**2)
             self.z += (self.speedz * TIME)
 
-        # Updates object only if at least one of the speeds is diff 0
-        if self.speedx != 0 or self.speedy != 0 or self.speedz != 0:
-            #print("SPEED:", self.speedx, self.speedy, self.speedz)
-            #print("POS:", posx, posy, self.z)
+        # Updates rect only if it is moving
+        if self.speedx != 0 or self.speedy != 0:
+            print("SPEED:", self.speedx, self.speedy, self.speedz)
+            print("POS:", posx, posy, self.z)
             self.rect = self.rect.move(posx, posy)
 
 
