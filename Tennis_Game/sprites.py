@@ -132,7 +132,8 @@ class Top_player(Player):
     
     # Puts agent in starting position
     def restart_position(self):
-        self.rect.move(TOP_POS)
+        self.rect.x = TOP_POS[0]
+        self.rect.y = TOP_POS[1]
 
 
 # Class for Top player
@@ -174,7 +175,8 @@ class Bottom_player(Player):
     
     # Puts agent in starting position
     def restart_position(self):
-        self.rect.move(BOTTOM_POS)
+        self.rect.x = BOTTOM_POS[0]
+        self.rect.y = BOTTOM_POS[1]
 
 
 # Ball class
@@ -184,14 +186,21 @@ class Ball(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.image = pygame.image.load("tennisBall.png")
         self.rect = self.image.get_rect()
+        self.rect = self.rect.move(TOP_POS[0] - 30, TOP_POS[1] + 10)
         self.speedx = 0
         self.speedy = 0
         self.speedz = 0
         self.serve_flag = True
         # Ball height.
         self.z = NET_HEIGHT
-    
 
+    # Method to place ball next to server
+    def restart_position(self, server):
+        if isinstance(server, Top_player):
+            self.rect = self.rect.move(TOP_POS[0] - 30, TOP_POS[1] + 10)
+        else:
+            self.rect = self.rect.move(BOTTOM_POS[0] + 10, BOTTOM_POS[1] + 10)
+    
     def get_stroke_speed(self, keyState, player):
     # bottom players stroke
         if isinstance(player, Bottom_player):
@@ -259,8 +268,65 @@ class Ball(pygame.sprite.Sprite):
         return (speedx, speedy, speedz)
 
 
+    # Method to update the ball position
+    def update_position(self):
+        # Updates the ball position
+        posx, posy = 0, 0
+
+        # Movement requires update only if it is not stopped
+        if self.speedx != 0:
+            # Air resistance has always direction opposed to speed
+            if self.speedx - (AIR_RESISTANCE * TIME) > 0:
+                self.speedx -= AIR_RESISTANCE * TIME
+            if self.speedx + (AIR_RESISTANCE * TIME) < 0:
+                self.speedx += AIR_RESISTANCE * TIME
+            posx = self.speedx * TIME
+        
+        # Updates posy ball
+        if self.speedy != 0:
+            # Air resistance has always direction opposed to speed
+            if self.speedy - (AIR_RESISTANCE * TIME) > 0:
+                self.speedy -= AIR_RESISTANCE * TIME
+            elif self.speedy + (AIR_RESISTANCE * TIME) < 0:
+                self.speedy += AIR_RESISTANCE * TIME
+            posy = self.speedy * TIME 
+        
+        # Updates posz ball
+        # Gravity is always reducing z
+        if self.speedz != 0:
+            self.speedz -= (GRAVITY/2) * (TIME**2)
+            self.z += (self.speedz * TIME)
+
+        # Updates object only if at least one of the speeds is diff 0
+        if self.speedx != 0 or self.speedy != 0 or self.speedz != 0:
+            #print("SPEED:", self.speedx, self.speedy, self.speedz)
+            #print("POS:", posx, posy, self.z)
+            self.rect = self.rect.move(posx, posy)
+
+
+    # Method to make a service
+    def serve(self, server):
+        keyState = pygame.key.get_pressed()
+        
+        # Waits for serve command
+        if (isinstance(server, Bottom_player) and keyState[pygame.K_PERIOD]) or (isinstance(server, Top_player) and keyState[pygame.K_TAB]):
+            # Top player pressed its serving button
+            if keyState[pygame.K_TAB]:
+                server.image = images.camden_serve
+            else:
+                server.image = images.robert_serve
+            
+            # Gets other key pressed for server effects
+            keyState = pygame.key.get_pressed()
+            self.speedx, self.speedy, self.speedz = self.get_stroke_speed(keyState, server)
+            self.update_position()
+            return 1
+        
+        return 0
+
+
     # Updates ball movement
-    def update(self, bottom_player, top_player, server):
+    def update(self, bottom_player, top_player):
         keyState = pygame.key.get_pressed()
 
         # check if point over and who won
@@ -281,41 +347,9 @@ class Ball(pygame.sprite.Sprite):
             self.rect.y = 0
             self.serve_flag = True
             return TOP_WON
-
-        # checks if player served
-        if (keyState[pygame.K_PERIOD] and bottom_player.rect.y > 520) or (keyState[pygame.K_TAB] and top_player.rect.y < 20):
-            self.serve_flag = True
-        
-        # checks to see if ball has passed the net after player served
-        if self.serve_flag and 300 < self.rect.y < 350:
-            self.serve_flag = False
-
-        # bottom player serves
-        elif self.serve_flag and keyState[pygame.K_PERIOD]:
-            bottom_player.image = images.robert_serve
-            self.rect.center = (bottom_player.rect.x + 15, bottom_player.rect.y)
-            self.speedy = -rnd.uniform(6,9)
-            # serves to the left
-            if bottom_player.rect.x < 350:
-                self.speedx = rnd.uniform(2,5)
-            # serves to the right
-            else: 
-                self.speedx = -rnd.uniform(2,5)
-        
-        # top player serves
-        elif self.serve_flag and keyState[pygame.K_TAB]:
-            self.rect.center = (top_player.rect.x, top_player.rect.y + 40)
-            top_player.image = images.camden_serve
-            self.speedy = rnd.uniform(6,9)   
-            #serves to the right
-            if top_player.rect.x < 350:
-                self.speedx = rnd.uniform(2,5)
-            # serves to the left              
-            else:
-                self.speedx = -rnd.uniform(2,5)
         
         # bottom player hits the ball
-        elif self.rect.colliderect(bottom_player) and not self.serve_flag:
+        if self.rect.colliderect(bottom_player) and not self.serve_flag:
             effect = pygame.mixer.Sound('tennisserve.wav')
             effect.play(0)
             # Reset ball's height
@@ -344,46 +378,8 @@ class Ball(pygame.sprite.Sprite):
             if self.rect.x < top_player.rect.x - 10:
                 top_player.image = images.camden_backhand
 
-        # Updates the ball position
-        posx, posy = 0, 0
-        # Updates posx ball
-        # Movement is only updated when it has a speed
-        if self.speedx != 0:
-            # Air resistance has always direction opposed to speed
-            if self.speedx - (AIR_RESISTANCE * TIME) > 0:
-                self.speedx -= AIR_RESISTANCE * TIME
-            if self.speedx + (AIR_RESISTANCE * TIME) < 0:
-                self.speedx += AIR_RESISTANCE * TIME
-            posx = self.speedx * TIME
-        
-        # Updates posy ball
-        if self.speedy != 0:
-            # Air resistance has always direction opposed to speed
-            if self.speedy - (AIR_RESISTANCE * TIME) > 0:
-                self.speedy -= AIR_RESISTANCE * TIME
-            elif self.speedy + (AIR_RESISTANCE * TIME) < 0:
-                self.speedy += AIR_RESISTANCE * TIME
-            posy = self.speedy * TIME 
-        
-        # Updates posz ball
-        # Gravity is always reducing z
-        if self.speedz != 0:
-            self.speedz -= (GRAVITY/2) * (TIME**2)
-            self.z += (self.speedz * TIME)
-
-        # Updates object only if at least one of the speeds is diff 0
-        if self.speedx != 0 or self.speedy != 0 or self.speedz != 0:
-            print("SPEED:", self.speedx, self.speedy, self.speedz)
-            print("POS:", posx, posy, self.z)
-            self.rect = self.rect.move(posx, posy)
+        # Updates ball position, given it's speed
+        self.update_position()
 
         # say no one has won yet
         return 0
-
-
-    # Method to place ball next to server
-    def restart_position(self, server):
-        if isinstance(server, Top_player):
-            self.rect = self.rect.move(TOP_POS[0] - 30, TOP_POS[1] + 10)
-        else:
-            self.rect = self.rect.move(BOTTOM_POS[0] + 10, BOTTOM_POS[1] + 10)

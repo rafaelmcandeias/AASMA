@@ -20,6 +20,7 @@ BOT_INFO_POS = (300, 300)
 # Vars for point winners
 TOP_WON = 2
 BOT_WON = 1
+MAX_POINTS = 15
 
 # ------------------------------------------------------------
 
@@ -96,40 +97,76 @@ def change_server(top_player, bottom_player, server):
     return top_player
 
 
+# Function to draw the court, each frame
+def draw_court(screen):
+    pygame.draw.rect(screen, COURT, [175, 75, 350, 500])
+    #outer left line
+    pygame.draw.line(screen, WHITE, (175,574), (175,75), 7)
+    #outer right line
+    pygame.draw.line(screen, WHITE, (525,574), (525,75), 7)
+    #top center line
+    pygame.draw.line(screen, WHITE, (175, 200), (525,200), 7)
+    #top outer line
+    pygame.draw.line(screen, WHITE, (175, 78), (525,78), 7)
+    #bottom outer line
+    pygame.draw.line(screen, WHITE, (175, 571), (525,571), 7)
+    #bottom center line
+    pygame.draw.line(screen, WHITE, (175, 450), (525,450), 7)
+    #center white line
+    pygame.draw.line(screen, WHITE, (350,200), (350,450), 7)
+    #net
+    pygame.draw.line(screen, BLACK, (175,325), (525,325), 10)
+    #bottom serve line
+    pygame.draw.line(screen, WHITE, (350,574), (350,584), 7)
+    #top serve line
+    pygame.draw.line(screen, WHITE, (350,65), (350,75), 7)
+
+
 #Main game loop
 def play(screen, top_player, bottom_player, tennisBall, all_sprites):
     # init scores
     bottom_player_score = 0
     top_player_score = 0
     server = top_player
+    # flag to know when is to serve
+    serve_flag = True
     
     carryOn = True
     clock = pygame.time.Clock()
+    
+    # main play loop
     while carryOn:
 
         font = pygame.font.Font('freesansbold.ttf', 32)
         screen.fill(OUT)
 
-        # has someone won?
-        if bottom_player_score == 15 or top_player_score == 15:
-            break
+        # Serving time and server serves
+        if serve_flag:
+            if tennisBall.serve(server) == 1:
+                serve_flag = False
 
-        # update 
-        top_player.update()
-        bottom_player.update()
-        point = tennisBall.update(bottom_player, top_player, server)
+        # Only computes rest if service was successful or it was not to serve
+        else:
+            # Players and ball only move if there was a service
+            top_player.update()
+            bottom_player.update()
+            point = tennisBall.update(bottom_player, top_player)
 
-        # player scored
-        if point == BOT_WON or point == TOP_WON:
-            # bottom player won
-            if point == BOT_WON: 
-                bottom_player_score += 1
-            # top player won
-            else:
-                top_player_score += 1
-            # Update conditions
-            server = change_server(top_player, bottom_player, server)
-            restart_positions(top_player, bottom_player, tennisBall, server)
+            # player scored
+            if point == BOT_WON or point == TOP_WON:
+                # bottom player won
+                if point == BOT_WON:
+                    bottom_player_score += 1
+                # top player won
+                else:
+                    top_player_score += 1
+                # has someone won?
+                if bottom_player_score == 15 or top_player_score == 15:
+                    break
+                # Update conditions
+                server = change_server(top_player, bottom_player, server)
+                restart_positions(top_player, bottom_player, tennisBall, server)
+                serve_flag = True
 
         #Render both scoreboards
         scorebox = font.render(str(top_player_score), True, WHITE, BLACK)
@@ -150,27 +187,7 @@ def play(screen, top_player, bottom_player, tennisBall, all_sprites):
                     carryOn = False
 
         #Draw the court
-        pygame.draw.rect(screen, COURT, [175, 75, 350, 500])
-        #outer left line
-        pygame.draw.line(screen, WHITE, (175,574), (175,75), 7)
-        #outer right line
-        pygame.draw.line(screen, WHITE, (525,574), (525,75), 7)
-        #top center line
-        pygame.draw.line(screen, WHITE, (175, 200), (525,200), 7)
-        #top outer line
-        pygame.draw.line(screen, WHITE, (175, 78), (525,78), 7)
-        #bottom outer line
-        pygame.draw.line(screen, WHITE, (175, 571), (525,571), 7)
-        #bottom center line
-        pygame.draw.line(screen, WHITE, (175, 450), (525,450), 7)
-        #center white line
-        pygame.draw.line(screen, WHITE, (350,200), (350,450), 7)
-        #net
-        pygame.draw.line(screen, BLACK, (175,325), (525,325), 10)
-        #bottom serve line
-        pygame.draw.line(screen, WHITE, (350,574), (350,584), 7)
-        #top serve line
-        pygame.draw.line(screen, WHITE, (350,65), (350,75), 7)
+        draw_court(screen)
 
         #Update
         all_sprites.draw(screen)
