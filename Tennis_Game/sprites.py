@@ -287,7 +287,7 @@ class Ball(pygame.sprite.Sprite):
         
         # Updates posz ball
         # Gravity is always reducing z
-        if self.speedz != 0 and self.z > 0:
+        if self.z > 0:
             self.speedz -= (GRAVITY/2) * (TIME**2)
             self.z += self.speedz * TIME
 
@@ -313,7 +313,7 @@ class Ball(pygame.sprite.Sprite):
             if isinstance(server, Top_player):
                 self.speedx = rnd.uniform(1.5, 2.25)
             else:
-                self.speedx = rnd.uniform(-2.25, -1.5)
+                self.speedx = -2
             
             force = server.choose_force()
             print("FORCE", force)
