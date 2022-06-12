@@ -27,7 +27,7 @@ if __name__ == "__main__":
             # Creates agents and ball
             top_player, bottom_player, ball, all_sprites = create_objects(agents, top_name, bot_name)
             # Executes game
-            top_score, bot_score = play(screen, top_player, bottom_player, ball, all_sprites)
+            top_score, bot_score = play(screen, top_player, bottom_player, ball, all_sprites, "random")
             print(top_name + ": " + str(top_score) + " / " + bot_name + ": " + str(bot_score) + "\n")
 
             # Updates score dictionaire

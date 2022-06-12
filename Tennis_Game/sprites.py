@@ -15,8 +15,8 @@ LIMIT_BOT = 587
 LIMIT_RIGHT = 648
 
 # Vars for starting positions
-BOTTOM_POS = (442, 524)
-TOP_POS = (202, 40)
+BOTTOM_POS = (450, 524)
+TOP_POS = (300, 40)
 
 # Vars to declare zones in the field
 LEFT_FIELD = 0.99175
@@ -102,27 +102,27 @@ class Top_player(Player):
         self.rect.center = TOP_POS
     
     # Function to update a player's position
-    def update(self):
+    def update(self, action):
         # Get key pressed
         keyState = pygame.key.get_pressed()
         pressed = False
 
         # Left arrow
-        if keyState[pygame.K_a] and self.rect.x > LIMIT_LEFT:
+        if action == 'Left' and self.rect.x > LIMIT_LEFT:
             self.rect.x -= self.speedx * (self.stamina / self.energy)
             pressed = True
         # Right arrow
-        if keyState[pygame.K_d] and self.rect.x < LIMIT_RIGHT:
+        if action == 'Right' and self.rect.x < LIMIT_RIGHT:
             self.rect.x += self.speedx * (self.stamina / self.energy)
             if not pressed:
                 self.stamina *= 0.9999999999
         # Up arrow
-        if keyState[pygame.K_w] and self.rect.y > LIMIT_TOP:
+        if action == 'Up' and self.rect.y > LIMIT_TOP:
             self.rect.y -= self.speedy * (self.stamina / self.energy)
             if not pressed:
                 self.stamina *= 0.9999999999
         # Down arrow
-        if keyState[pygame.K_s] and self.rect.y < LIMIT_TOP_NET:
+        if action == 'Down' and self.rect.y < LIMIT_TOP_NET:
             self.rect.y += self.speedy * (self.stamina / self.energy)
             if not pressed:
                 self.stamina *= 0.9999999999
@@ -138,29 +138,29 @@ class Bottom_player(Player):
         self.rect.center = BOTTOM_POS
     
     # Function to update a player's position
-    def update(self):
+    def update(self, action):
         # Get key pressed
         keyState = pygame.key.get_pressed()
         pressed = False
 
         # New rec pos adds the amount of speed * the percentage of energy still has
         # Left arrow
-        if keyState[pygame.K_LEFT] and self.rect.x > LIMIT_LEFT:
+        if action == 'Left' and self.rect.x > LIMIT_LEFT:
             self.rect.x -= self.speedx * (self.stamina / self.energy)
             pressed = True
             self.stamina *= 0.9999999999
         # Right arrow
-        if keyState[pygame.K_RIGHT] and self.rect.x < LIMIT_RIGHT:
+        if action == 'Right' and self.rect.x < LIMIT_RIGHT:
             self.rect.x += self.speedx * (self.stamina / self.energy)
             if not pressed:
                 self.stamina *= 0.9999999999
         # Up arrow
-        if keyState[pygame.K_UP] and self.rect.y > LIMIT_BOTTOM_NET:
+        if action == 'Up' and self.rect.y > LIMIT_BOTTOM_NET:
             self.rect.y -= self.speedy * (self.stamina / self.energy)
             if not pressed:
                 self.stamina *= 0.9999999999
         # Down arrow
-        if keyState[pygame.K_DOWN] and self.rect.y < LIMIT_BOT:
+        if action == 'Down' and self.rect.y < LIMIT_BOT:
             self.rect.y += self.speedy * (self.stamina / self.energy)
             if not pressed:
                 self.stamina *= 0.9999999999
@@ -175,174 +175,130 @@ class Ball(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.speedx = 0
         self.speedy = 0
-        self.speedz = 0
-        self.serve_flag = True
+        #self.speedz = 0
         # Ball height.
-        self.z = NET_HEIGHT
+        #self.z = NET_HEIGHT
     
 
-    def get_stroke_speed(self, keyState, player):
-    # bottom players stroke
+    def get_stroke_speed(self, player, action):
+        
+        speedx = 0
+        speedy = 0
+
+        # bottom players stroke
         if isinstance(player, Bottom_player):
             # region 1 of the court
             if LEFT_FIELD <= self.rect.x < MIDDLE_FIELD[0]:
-                if keyState[pygame.K_n]:
+                if action == 'Left':
                     speedx = -rnd.uniform(0,1)
-                elif keyState[pygame.K_m]:
+                elif action == 'Right':
                     speedx = rnd.uniform(4,6)
-                else:
+                elif action == 'Straight':
                     speedx = 0
             
             # region 2 of the court
             elif MIDDLE_FIELD[0] <= self.rect.x < MIDDLE_FIELD[1]:
-                if keyState[pygame.K_n]:
+                if action == 'Left':
                     speedx = -rnd.uniform(2,3)
-                elif keyState[pygame.K_m]:
+                elif action == 'Right':
                     speedx = rnd.uniform(2,3)
-                else:
+                elif action == 'Straight':
                     speedx = 0
             
             # region 3 of the court
             else:
-                if keyState[pygame.K_n]:
+                if action == 'Left':
                     speedx = -rnd.uniform(4,6)
-                elif keyState[pygame.K_m]:
+                elif action == 'Right':
                     speedx = rnd.uniform(0,1)
-                else:
+                elif action == 'Straight':
                     speedx = 0
 
-            force = -player.choose_force()
         
         # top players stroke
-        else:
+        elif player == 'top_player':
             if LEFT_FIELD <= self.rect.x < MIDDLE_FIELD[0]:
-                if keyState[pygame.K_r]:
+                if action == 'Left':
                     speedx = -rnd.uniform(0,1)
-                elif keyState[pygame.K_t]:
+                elif action == 'Right':
                     speedx = rnd.uniform(4,6)
-                else:
+                elif action == 'Straight':
                     speedx = 0
 
             # region 2 of the court
             elif MIDDLE_FIELD[0] <= self.rect.x < MIDDLE_FIELD[1]:
-                if keyState[pygame.K_r]:
+                if action == 'Left':
                     speedx = -rnd.uniform(2,3)
-                elif keyState[pygame.K_t]:
+                elif action == 'Right':
                     speedx = rnd.uniform(2,3)
-                else:
+                elif action == 'Straight':
                     speedx = 0
             
             # region 3 of the court
             else:
-                if keyState[pygame.K_r]:
+                if action == 'Left':
                     speedx = -rnd.uniform(4,6)
-                elif keyState[pygame.K_t]:
+                elif action == 'Right':
                     speedx = rnd.uniform(0,1)
-                else:
+                elif action == 'Straight':
                     speedx = 0
             
-            force = player.choose_force()
-        
-        speedy = (force - speedx) * rnd.uniform(0.45, 0.95)
-        speedz = force - speedx - speedy
-        return (speedx, speedy, speedz)
+        speedy = speedy = abs(player.choose_force()) * rnd.uniform(0.75, 0.95)
+        if isinstance(player, Bottom_player):
+            speedy = -speedy
 
+        return (speedx, speedy)
 
     # Updates ball movement
-    def update(self, bottom_player, top_player):
+    def update(self, serve_flag, player, action='None'):
         start = datetime.now()
         keyState = pygame.key.get_pressed()
 
         # check if point over and who won
         # the bottom side won
-        if (self.rect.x > LIMIT_RIGHT or self.rect.x < LIMIT_LEFT or self.rect.y < LIMIT_TOP) or (not self.serve_flag and abs(self.speedy) < 0.5 and self.rect.y < LIMIT_BOTTOM_NET):
+        if (self.rect.x > LIMIT_RIGHT or self.rect.x < LIMIT_LEFT or self.rect.y < LIMIT_TOP) or (not serve_flag and abs(self.speedy) < 0.5 and self.rect.y < LIMIT_BOTTOM_NET):
             self.speedx = 0
             self.speedy = 0
             self.rect.x = 0
             self.rect.y = 0
-            self.serve_flag = True
             return 1
         
         # top side won
-        if (self.rect.x > LIMIT_RIGHT or self.rect.x < LIMIT_LEFT or self.rect.y > LIMIT_BOT) or (not self.serve_flag and abs(self.speedy) < 0.5 and self.rect.y > LIMIT_BOTTOM_NET):   
+        if (self.rect.x > LIMIT_RIGHT or self.rect.x < LIMIT_LEFT or self.rect.y > LIMIT_BOT) or (not serve_flag and abs(self.speedy) < 0.5 and self.rect.y > LIMIT_BOTTOM_NET):   
             self.speedx = 0
             self.speedy = 0
             self.rect.x = 0
             self.rect.y = 0
-            self.serve_flag = True
             return 2
 
-        # checks if player served
-        if (keyState[pygame.K_PERIOD] and bottom_player.rect.y > 520) or (keyState[pygame.K_TAB] and top_player.rect.y < 20):
-            self.serve_flag = True
-        
-        # checks to see if ball has passed the net after player served
-        if self.serve_flag and 300 < self.rect.y < 350:
-            self.serve_flag = False
-
-        # bottom player serves
-        elif self.serve_flag and keyState[pygame.K_PERIOD]:
-            bottom_player.image = images.robert_serve
-            self.rect.center = (bottom_player.rect.x + 15, bottom_player.rect.y)
-            self.speedy = -rnd.uniform(6,9)
-            # serves to the left
-            if bottom_player.rect.x < 350:
-                self.speedx = rnd.uniform(2,5)
-            # serves to the right
-            else: 
-                self.speedx = -rnd.uniform(2,5)
-        
-        # top player serves
-        elif self.serve_flag and keyState[pygame.K_TAB]:
-            self.rect.center = (top_player.rect.x, top_player.rect.y + 40)
-            top_player.image = images.camden_serve
-            self.speedy = rnd.uniform(6,9)   
-            #serves to the right
-            if top_player.rect.x < 350:
-                self.speedx = rnd.uniform(2,5)
-            # serves to the left              
+        # player hits the ball        
+        if action != 'None':
+            if action != 'Top Serve' and action != 'Bottom Serve':
+                self.speedx, self.speedy = self.get_stroke_speed(player, action)
             else:
-                self.speedx = -rnd.uniform(2,5)
-        
-        # bottom player hits the ball
-        elif self.rect.colliderect(bottom_player) and not self.serve_flag:
-            effect = pygame.mixer.Sound('tennisserve.wav')
-            effect.play(0)
-            # Reset ball's height
-            self.z = NET_HEIGHT
-            # Get ball speeds
-            self.speedx, self.speedy, self.speedz = self.get_stroke_speed(keyState, bottom_player)
-            # forehand animation
-            if self.rect.x > bottom_player.rect.x + 10:
-                bottom_player.image = images.robert_forehand
-            #backhand animation
-            elif self.rect.x < bottom_player.rect.x - 10:
-                bottom_player.image = images.robert_backhand
-        
-        # top player hits the ball
-        elif self.rect.colliderect(top_player) and not self.serve_flag:
-            effect = pygame.mixer.Sound('tennisserve.wav')
-            effect.play(0)
-            # Reset ball's height
-            self.z = NET_HEIGHT
-            # Get ball speeds
-            self.speedx, self.speedy, self.speedz = self.get_stroke_speed(keyState, top_player)
-            # forehand animation
-            if self.rect.x > top_player.rect.x + 10:
-                top_player.image = images.camden_forehand
-            #backhand animation
-            if self.rect.x < top_player.rect.x - 10:
-                top_player.image = images.camden_backhand
-
-        # Calculate time 
-        end = datetime.now()
-        time = end - start
-        seconds = time.total_seconds()
-
-        #Make the ball slow down
-        self.speedy -= AIR_RESISTANCE * seconds
-        self.speedx -= AIR_RESISTANCE * seconds
-        self.z += (self.speedz * seconds) - ((GRAVITY/2) * (seconds**2))
+                if action == 'Bottom Serve':
+                    self.rect.center = (BOTTOM_POS[0], BOTTOM_POS[1] - 100)
+                    if player.rect.x < 350:
+                        self.speedx = -rnd.uniform(1,3)
+                    else:
+                        self.speedx = rnd.uniform(1,3)
+                    self.speedy = -8
+                if action == 'Top Serve':
+                    self.rect.center = (TOP_POS[0], TOP_POS[1] + 100)
+                    if player.rect.x < 350:
+                        self.speedx = rnd.uniform(1,3)           
+                    else:
+                        self.speedx = -rnd.uniform(1,3)
+                    self.speedy = 8 
+            
+        elif action == 'None':
+            # Calculate time 
+            #end = datetime.now()
+            #time = end - start
+            #seconds = time.total_seconds()
+            #Make the ball slow down
+            self.speedy *= AIR_RESISTANCE
+            #self.z += (self.speedz * seconds) - ((GRAVITY/2) * (seconds**2))
         self.rect = self.rect.move(self.speedx, self.speedy)
 
         # say no one has won yet
