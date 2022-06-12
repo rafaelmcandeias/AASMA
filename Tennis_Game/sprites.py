@@ -37,8 +37,8 @@ NET_HEIGHT = 1.07
 
 # Vars for physichs
 AIR_RESISTANCE = 0.99
-GRAVITY = 9.8
-# Assume constant time passes between frames. Converted to milli seconds
+GRAVITY = 9.8e-6
+# Assume constant time passes between frames in milliseconds
 TIME = 2.9
 
 # ------------------------------------------------------------
@@ -263,7 +263,7 @@ class Ball(pygame.sprite.Sprite):
             
             force = player.choose_force()
         
-        speedy = (abs(force) - abs(speedx)) * rnd.uniform(0.45, 0.95)
+        speedy = (abs(force) - abs(speedx)) * rnd.uniform(0.75, 0.95)
         if isinstance(player, Bottom_player):
             speedy = -speedy
         speedz = abs(force) - abs(speedx) - abs(speedy)
@@ -277,31 +277,23 @@ class Ball(pygame.sprite.Sprite):
 
         # Movement requires update only if it is not stopped
         if self.speedx != 0:
-            # Air resistance has always direction opposed to speed
-            if self.speedx - (AIR_RESISTANCE * TIME) > 0:
-                self.speedx -= AIR_RESISTANCE * TIME
-            if self.speedx + (AIR_RESISTANCE * TIME) < 0:
-                self.speedx += AIR_RESISTANCE * TIME
-            posx = self.speedx * TIME
+            self.speedx *= AIR_RESISTANCE
+            posx += self.speedx * TIME
         
         # Updates posy ball
         if self.speedy != 0:
-            # Air resistance has always direction opposed to speed
-            if self.speedy - (AIR_RESISTANCE * TIME) > 0:
-                self.speedy -= AIR_RESISTANCE * TIME
-            elif self.speedy + (AIR_RESISTANCE * TIME) < 0:
-                self.speedy += AIR_RESISTANCE * TIME
-            posy = self.speedy * TIME 
+            self.speedy *= AIR_RESISTANCE            
+            posy += self.speedy * TIME 
         
         # Updates posz ball
         # Gravity is always reducing z
         if self.speedz != 0 and self.z > 0:
             self.speedz -= (GRAVITY/2) * (TIME**2)
-            self.z += (self.speedz * TIME)
+            self.z += self.speedz * TIME
 
         # Updates rect only if it is moving
         if self.speedx != 0 or self.speedy != 0:
-            print("SPEED:", self.speedx, self.speedy, self.speedz)
+            print("SPEED2:", self.speedx, self.speedy, self.speedz)
             print("POS:", posx, posy, self.z)
             self.rect = self.rect.move(posx, posy)
 
@@ -318,9 +310,19 @@ class Ball(pygame.sprite.Sprite):
             else:
                 server.image = images.robert_serve
             
-            # Gets other key pressed for server effects
-            keyState = pygame.key.get_pressed()
-            self.speedx, self.speedy, self.speedz = self.get_stroke_speed(keyState, server)
+            if isinstance(server, Top_player):
+                self.speedx = rnd.uniform(1.5, 2.25)
+            else:
+                self.speedx = rnd.uniform(-2.25, -1.5)
+            
+            force = server.choose_force()
+            print("FORCE", force)
+            self.speedy = (abs(force) - abs(self.speedx)) * 0.85
+            if isinstance(server, Bottom_player):
+                self.speedy = -self.speedy
+            self.speedz = abs(force) - abs(self.speedx) - abs(self.speedy)
+            print("SPEED:", self.speedx, self.speedy, self.speedz)
+            
             self.update_position()
             return 1
         
