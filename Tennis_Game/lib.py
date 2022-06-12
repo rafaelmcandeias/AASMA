@@ -93,14 +93,14 @@ def restart_player_position_ts(top_player, bottom_player):
     bottom_player.rect.y = 524
     top_player.rect.x = 202
     top_player.rect.y = 40
-    pygame.time.wait(750)
+    pygame.time.wait(250)
 
 def restart_player_position_bs(top_player, bottom_player):
     bottom_player.rect.x = 442
     bottom_player.rect.y = 524
     top_player.rect.x = 202
     top_player.rect.y = 40
-    pygame.time.wait(750)
+    pygame.time.wait(250)
 
 
 # Reads two lines from Agents.txt and gets info from it

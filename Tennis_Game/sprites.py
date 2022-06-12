@@ -256,7 +256,7 @@ class Ball(pygame.sprite.Sprite):
 
         # check if point over and who won
         # the bottom side won
-        if (self.rect.x > LIMIT_RIGHT or self.rect.x < LIMIT_LEFT or self.rect.y < LIMIT_TOP) or (not serve_flag and abs(self.speedy) < 0.5 and self.rect.y < LIMIT_BOTTOM_NET):
+        if (self.rect.x > LIMIT_RIGHT or self.rect.x < LIMIT_LEFT or self.rect.y < LIMIT_TOP) or (not serve_flag and abs(self.speedy) < 0.5 and self.rect.y < LIMIT_BOTTOM_NET) or (self.rect.y == 350 and (self.rect.x > 525 or self.rect.x < 175) and self.speedy > 0):
             self.speedx = 0
             self.speedy = 0
             self.rect.x = 0
@@ -264,7 +264,7 @@ class Ball(pygame.sprite.Sprite):
             return 1
         
         # top side won
-        if (self.rect.x > LIMIT_RIGHT or self.rect.x < LIMIT_LEFT or self.rect.y > LIMIT_BOT) or (not serve_flag and abs(self.speedy) < 0.5 and self.rect.y > LIMIT_BOTTOM_NET):   
+        if (self.rect.x > LIMIT_RIGHT or self.rect.x < LIMIT_LEFT or self.rect.y > LIMIT_BOT) or (not serve_flag and abs(self.speedy) < 0.5 and self.rect.y > LIMIT_BOTTOM_NET) or (self.rect.y == 350 and (self.rect.x > 525 or self.rect.x < 175) and self.speedy < 0):   
             self.speedx = 0
             self.speedy = 0
             self.rect.x = 0
@@ -279,9 +279,9 @@ class Ball(pygame.sprite.Sprite):
                 if action == 'Bottom Serve':
                     self.rect.center = (BOTTOM_POS[0], BOTTOM_POS[1] - 100)
                     if player.rect.x < 350:
-                        self.speedx = -rnd.uniform(1,3)
-                    else:
                         self.speedx = rnd.uniform(1,3)
+                    else:
+                        self.speedx = -rnd.uniform(1,3)
                     self.speedy = -8
                 if action == 'Top Serve':
                     self.rect.center = (TOP_POS[0], TOP_POS[1] + 100)
