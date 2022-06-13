@@ -18,6 +18,9 @@ GREEN = (0, 255, 0)
 SKIN = (232, 214, 162)
 YELLOW = (255, 0, 255)
 
+AIR_RESISTANCE = 0.99
+
+
 def reset(point, screen, bottom_player, top_player, bottom_player_score, top_player_score):
 
     # bottom player won
@@ -52,10 +55,33 @@ def get_serve():
     return {0:'Top Serve', 1:'Bottom Serve'}
 
 def get_movement():
-    return {0:'Up', 1:'Down', 2:'Left', 3:'Right'}
+    return {0:'Up', 1:'Down', 2:'Left', 3:'Right', 4:'Stay'}
 
 def get_stroke_direction():
     return {0:'Straigh', 1:'Left', 2:'Right'}
+
+# it should only have one positive value
+def only_postive_values(l):
+    for i in l:
+        if i > 0:
+            return i
+    return -1
+
+# get x value when ball gets to players y
+def get_x_of_ball(ball, player):
+
+    # calculate how long till ball is at players y
+    # using Y = Yo + Voby.t + 0.5at^2 
+    p=[AIR_RESISTANCE/2, ball.speedy, ball.rect.y - player.rect.y]
+    roots = np.roots(p)
+    time = only_postive_values(roots)
+    if time == -1:
+        return 1000
+
+    # now calculate x of the ball at time
+    x_final = ball.rect.x + ball.speedx*time + 0.5*time**2
+
+    return x_final
 
 
 # step substitutyes the ball.update
@@ -73,14 +99,50 @@ def step_bp(serve_flag, bottom_player, top_player, ball, mode):
         else:
             if ball.rect.colliderect(bottom_player):
                 action = get_stroke_direction()[np.random.choice(list(get_stroke_direction().keys()))]
-                #print("cont", action)
                 ball.update(serve_flag, bottom_player, action)
 
             else:
                 action = get_movement()[np.random.choice(list(get_movement().keys()))]
-                #print("no cont", action)
                 bottom_player.update(action)
                 ball.update(serve_flag, bottom_player)
+
+    # knows how to play, goes to the ball and knows where he should hit it
+    if mode == "expert":
+
+        if serve_flag == True:
+            action = get_serve()[np.random.choice(list(get_serve().keys()))]
+            print(action)
+            if action == 'Bottom Serve':
+                ball.update(serve_flag, bottom_player, action)
+            if action == 'Top Serve':
+                ball.update(serve_flag, top_player, action)
+        
+        # actual plays
+        else:
+            if ball.rect.colliderect(bottom_player):
+                # gets the other player place on the court
+                if (top_player.rect.x > 350 and bottom_player.rect.x < 225) or (top_player.rect.x < 350 and bottom_player.rect.x > 475):
+                    action = 'Straight'
+                else:
+                    if top_player.rect.x < 350:
+                        action = 'Left'
+                    else:
+                        action = 'Right'
+                ball.update(serve_flag, bottom_player, action)
+                        
+            else:
+                if abs(ball.speedy) < 1:
+                    action = 'Up'
+                elif ball.speedx > 0 and bottom_player.rect.x < get_x_of_ball(ball, bottom_player):
+                    action = 'Left'                
+                elif ball.speedx < 0 and bottom_player.rect.x > get_x_of_ball(ball, bottom_player):
+                    action = 'Right'
+                else:
+                    action = 'Stay'
+                print("bottom moves", action)
+                bottom_player.update(action)
+                ball.update(serve_flag, bottom_player)  
+    
     
 
 def step_tp(serve_flag, bottom_player, top_player, ball, mode):
@@ -96,6 +158,29 @@ def step_tp(serve_flag, bottom_player, top_player, ball, mode):
             top_player.update(action)
             point = ball.update(serve_flag, top_player)
     
+    if mode == 'expert':
+        
+        if ball.rect.colliderect(top_player):
+                # gets the other player place on the court
+                if (bottom_player.rect.x > 350 and top_player.rect.x < 225) or (bottom_player.rect.x < 350 and top_player.rect.x > 475):
+                    action = 'Straight'
+                else:
+                    if bottom_player.rect.x < 350:
+                        action = 'Left'
+                    else:
+                        action = 'Right'
+                ball.update(serve_flag, top_player, action)
+                        
+        else:
+            if ball.speedx > 0 and top_player.rect.x < get_x_of_ball(ball, top_player):
+                action = 'Left'                
+            elif ball.speedx < 0 and top_player.rect.x > get_x_of_ball(ball, top_player):
+                action = 'Right'
+            else:
+                action = 'Stay'
+            top_player.update(action)
+            point = ball.update(serve_flag, top_player)  
+
     return point
     
 

@@ -107,26 +107,29 @@ class Top_player(Player):
         keyState = pygame.key.get_pressed()
         pressed = False
 
-        # Left arrow
+        # Left
         if action == 'Left' and self.rect.x > LIMIT_LEFT:
             self.rect.x -= self.speedx * (self.stamina / self.energy)
             pressed = True
-        # Right arrow
+        # Right
         if action == 'Right' and self.rect.x < LIMIT_RIGHT:
             self.rect.x += self.speedx * (self.stamina / self.energy)
             if not pressed:
                 self.stamina *= 0.9999999999
-        # Up arrow
+        # Up
         if action == 'Up' and self.rect.y > LIMIT_TOP:
             self.rect.y -= self.speedy * (self.stamina / self.energy)
             if not pressed:
                 self.stamina *= 0.9999999999
-        # Down arrow
+        # Down
         if action == 'Down' and self.rect.y < LIMIT_TOP_NET:
             self.rect.y += self.speedy * (self.stamina / self.energy)
             if not pressed:
                 self.stamina *= 0.9999999999
-
+        # Stay
+        if action == 'Saty':
+            # Do nothing
+            pass    
 
 # Class for Top player
 class Bottom_player(Player):
@@ -144,26 +147,30 @@ class Bottom_player(Player):
         pressed = False
 
         # New rec pos adds the amount of speed * the percentage of energy still has
-        # Left arrow
+        # Left
         if action == 'Left' and self.rect.x > LIMIT_LEFT:
             self.rect.x -= self.speedx * (self.stamina / self.energy)
             pressed = True
             self.stamina *= 0.9999999999
-        # Right arrow
+        # Right
         if action == 'Right' and self.rect.x < LIMIT_RIGHT:
             self.rect.x += self.speedx * (self.stamina / self.energy)
             if not pressed:
                 self.stamina *= 0.9999999999
-        # Up arrow
+        # Up
         if action == 'Up' and self.rect.y > LIMIT_BOTTOM_NET:
             self.rect.y -= self.speedy * (self.stamina / self.energy)
             if not pressed:
                 self.stamina *= 0.9999999999
-        # Down arrow
+        # Down
         if action == 'Down' and self.rect.y < LIMIT_BOT:
             self.rect.y += self.speedy * (self.stamina / self.energy)
             if not pressed:
                 self.stamina *= 0.9999999999
+        # Stay
+        if action == 'Saty':
+            # Do nothing
+            pass 
 
 
 # Ball class
