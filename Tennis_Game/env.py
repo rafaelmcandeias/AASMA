@@ -2,8 +2,6 @@
 # The observation space is continuous because the action space is described by real-valued coordinates
 # The action space is discrete, you can only define the actions but not quantify them. This is, if you choose left, the agent goes left, but he cant go faster
 # or slower than his speed.
-
-import gym
 import lib
 import numpy as np
 import pygame
@@ -89,28 +87,28 @@ def step_bp(serve_flag, bottom_player, top_player, ball, mode):
     
     if mode == 'random':
         if serve_flag == True:
-            action = get_serve()[np.random.choice(list(get_serve().keys()))]
+            action = get_serve()[np.random.choice(tuple(get_serve().keys()))]
             print(action)
             if action == 'Bottom Serve':
                 ball.update(serve_flag, bottom_player, action)
-            if action == 'Top Serve':
+            elif action == 'Top Serve':
                 ball.update(serve_flag, top_player, action)
 
         else:
             if ball.rect.colliderect(bottom_player):
-                action = get_stroke_direction()[np.random.choice(list(get_stroke_direction().keys()))]
+                action = get_stroke_direction()[np.random.choice(tuple(get_stroke_direction().keys()))]
                 ball.update(serve_flag, bottom_player, action)
 
             else:
-                action = get_movement()[np.random.choice(list(get_movement().keys()))]
+                action = get_movement()[np.random.choice(tuple(get_movement().keys()))]
                 bottom_player.update(action)
                 ball.update(serve_flag, bottom_player)
 
     # knows how to play, goes to the ball and knows where he should hit it
-    if mode == "expert":
+    elif mode == "expert":
 
         if serve_flag == True:
-            action = get_serve()[np.random.choice(list(get_serve().keys()))]
+            action = get_serve()[np.random.choice(tuple(get_serve().keys()))]
             print(action)
             if action == 'Bottom Serve':
                 ball.update(serve_flag, bottom_player, action)
@@ -150,11 +148,11 @@ def step_tp(serve_flag, bottom_player, top_player, ball, mode):
     point = 0
     if mode == 'random':
         if ball.rect.colliderect(top_player):
-            action = get_stroke_direction()[np.random.choice(list(get_stroke_direction().keys()))]
+            action = get_stroke_direction()[np.random.choice(tuple(get_stroke_direction().keys()))]
             ball.update(serve_flag, top_player, action)
 
         else:
-            action = get_movement()[np.random.choice(list(get_movement().keys()))]
+            action = get_movement()[np.random.choice(tuple(get_movement().keys()))]
             top_player.update(action)
             point = ball.update(serve_flag, top_player)
     
@@ -169,7 +167,7 @@ def step_tp(serve_flag, bottom_player, top_player, ball, mode):
                         action = 'Left'
                     else:
                         action = 'Right'
-                ball.update(serve_flag, top_player, action)
+                point = ball.update(serve_flag, top_player, action)
                         
         else:
             if ball.speedx > 0 and top_player.rect.x < get_x_of_ball(ball, top_player):

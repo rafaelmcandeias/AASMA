@@ -1,5 +1,9 @@
 from lib import pygame, create_screen, start_screen, read_file, create_objects, play, print_scoreboard
 
+# Vars for game types
+RANDOM = "random"
+EXPERT = "expert"
+
 # Main execution
 if __name__ == "__main__":
     agents = {}
@@ -9,7 +13,7 @@ if __name__ == "__main__":
     screen = create_screen()
     # Executes start screen 
     start_screen(screen)
-    # Read agent's information
+    # Read agent's information. {Agent_name: (name, speed, force, energy), ...}
     agents = read_file()
     # Create scores dict
     scores = {k:0 for k in agents.keys()}
@@ -27,7 +31,7 @@ if __name__ == "__main__":
             # Creates agents and ball
             top_player, bottom_player, ball, all_sprites = create_objects(agents, top_name, bot_name)
             # Executes game
-            top_score, bot_score = play(screen, top_player, bottom_player, ball, all_sprites, "expert")
+            top_score, bot_score = play(screen, top_player, bottom_player, ball, all_sprites, RANDOM)
             print(top_name + ": " + str(top_score) + " / " + bot_name + ": " + str(bot_score) + "\n")
 
             # Updates score dictionaire
