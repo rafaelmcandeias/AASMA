@@ -1,4 +1,4 @@
 # Name Speed Force Energy
 # 0 < Energy <= 1
-Rodrigo 7 9 0.7
-Joao 7 9 0.7
+Rodrigo 9 9 0.7
+Joao 3 9 0.7

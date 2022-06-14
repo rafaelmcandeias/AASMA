@@ -223,7 +223,7 @@ class Ball(pygame.sprite.Sprite):
 
         
         # top players stroke
-        elif player == 'top_player':
+        elif isinstance(player, Top_player):
             if LEFT_FIELD <= self.rect.x < MIDDLE_FIELD[0]:
                 if action == 'Left':
                     speedx = -rnd.uniform(0,1)
@@ -250,7 +250,7 @@ class Ball(pygame.sprite.Sprite):
                 elif action == 'Straight':
                     speedx = 0
             
-        speedy = speedy = abs(player.choose_force()) * rnd.uniform(0.85, 0.95)
+        speedy = speedy = abs(player.choose_force()) * rnd.uniform(0.75, 0.95)
         if isinstance(player, Bottom_player):
             speedy = -speedy
 
@@ -307,7 +307,6 @@ class Ball(pygame.sprite.Sprite):
             self.speedy *= AIR_RESISTANCE
             #self.z += (self.speedz * seconds) - ((GRAVITY/2) * (seconds**2))
         self.rect = self.rect.move(self.speedx, self.speedy)
-        print("ball speed: ", self.speedy)
 
         # say no one has won yet
         return 0
