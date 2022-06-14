@@ -208,7 +208,7 @@ class Ball(pygame.sprite.Sprite):
     # Method to place ball next to server
     def restart_position(self, server):
         if isinstance(server, Top_player):
-            self.rect = self.rect.move(TOP_POS[0] - 30, TOP_POS[1] + 10)
+            self.rect.x, self.rect.y = TOP_POS[0] - 30, TOP_POS[1] + 10
         else:
             print("Restart position")
             self.rect.x, self.rect.y = BOTTOM_POS[0] + 10, BOTTOM_POS[1] + 10
