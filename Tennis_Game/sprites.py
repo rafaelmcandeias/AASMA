@@ -17,8 +17,8 @@ LEFT_FIELD = 0.99175
 MIDDLE_FIELD = (275, 475)
 
 # Vars for starting positions
-BOTTOM_POS = (442, 524)
-TOP_POS = (202, 40)
+BOTTOM_POS = (450, 524)
+TOP_POS = (300, 40)
 # Vars for point winners
 BOT_WON = 1
 TOP_WON = 2
@@ -106,31 +106,31 @@ class Top_player(Player):
         self.rect.center = TOP_POS
     
     # Function to update a player's position
-    def update(self):
+    def update(self, action):
         # Get key pressed
         keyState = pygame.key.get_pressed()
         pressed = False
 
-        # Left arrow
-        if keyState[pygame.K_a] and self.rect.x > LIMIT_LEFT:
+        # Left
+        if action == 'Left' and self.rect.x > LIMIT_LEFT:
             self.rect.x -= self.speedx * (self.stamina / self.energy)
             pressed = True
-        # Right arrow
-        if keyState[pygame.K_d] and self.rect.x < LIMIT_RIGHT:
+        # Right
+        elif action == 'Right' and self.rect.x < LIMIT_RIGHT:
             self.rect.x += self.speedx * (self.stamina / self.energy)
             if not pressed:
                 self.stamina *= 0.9999999999
-        # Up arrow
-        if keyState[pygame.K_w] and self.rect.y > LIMIT_TOP:
+        # Up
+        elif action == 'Up' and self.rect.y > LIMIT_TOP:
             self.rect.y -= self.speedy * (self.stamina / self.energy)
             if not pressed:
                 self.stamina *= 0.9999999999
-        # Down arrow
-        if keyState[pygame.K_s] and self.rect.y < LIMIT_TOP_NET:
+        # Down
+        elif action == 'Down' and self.rect.y < LIMIT_TOP_NET:
             self.rect.y += self.speedy * (self.stamina / self.energy)
             if not pressed:
                 self.stamina *= 0.9999999999
-    
+        
     # Puts agent in starting position
     def restart_position(self):
         self.rect.x = TOP_POS[0]
@@ -147,33 +147,33 @@ class Bottom_player(Player):
         self.rect.center = BOTTOM_POS
     
     # Function to update a player's position
-    def update(self):
+    def update(self, action):
         # Get key pressed
         keyState = pygame.key.get_pressed()
         pressed = False
 
         # New rec pos adds the amount of speed * the percentage of energy still has
-        # Left arrow
-        if keyState[pygame.K_LEFT] and self.rect.x > LIMIT_LEFT:
+        # Left
+        if action == 'Left' and self.rect.x > LIMIT_LEFT:
             self.rect.x -= self.speedx * (self.stamina / self.energy)
             pressed = True
             self.stamina *= 0.9999999999
-        # Right arrow
-        if keyState[pygame.K_RIGHT] and self.rect.x < LIMIT_RIGHT:
+        # Right
+        if action == 'Right' and self.rect.x < LIMIT_RIGHT:
             self.rect.x += self.speedx * (self.stamina / self.energy)
             if not pressed:
                 self.stamina *= 0.9999999999
-        # Up arrow
-        if keyState[pygame.K_UP] and self.rect.y > LIMIT_BOTTOM_NET:
+        # Up
+        if action == 'Up' and self.rect.y > LIMIT_BOTTOM_NET:
             self.rect.y -= self.speedy * (self.stamina / self.energy)
             if not pressed:
                 self.stamina *= 0.9999999999
-        # Down arrow
-        if keyState[pygame.K_DOWN] and self.rect.y < LIMIT_BOT:
+        # Down
+        if action == 'Down' and self.rect.y < LIMIT_BOT:
             self.rect.y += self.speedy * (self.stamina / self.energy)
             if not pressed:
                 self.stamina *= 0.9999999999
-    
+
     # Puts agent in starting position
     def restart_position(self):
         self.rect.x = BOTTOM_POS[0]
@@ -201,64 +201,65 @@ class Ball(pygame.sprite.Sprite):
         else:
             self.rect = self.rect.move(BOTTOM_POS[0] + 10, BOTTOM_POS[1] + 10)
     
-    def get_stroke_speed(self, keyState, player):
+    
+    def get_stroke_speed(self, player, action):
     # bottom players stroke
         if isinstance(player, Bottom_player):
             # region 1 of the court
             if LEFT_FIELD <= self.rect.x < MIDDLE_FIELD[0]:
-                if keyState[pygame.K_n]:
+                if action == 'Left':
                     speedx = -rnd.uniform(0,1)
-                elif keyState[pygame.K_m]:
+                elif action == 'Right':
                     speedx = rnd.uniform(4,6)
-                else:
-                    speedx = rnd.uniform(0, 0.5)
+                elif action == 'Straight':
+                    speedx = rnd.uniform(0, 0.25)
             
             # region 2 of the court
             elif MIDDLE_FIELD[0] <= self.rect.x < MIDDLE_FIELD[1]:
-                if keyState[pygame.K_n]:
+                if action == 'Left':
                     speedx = -rnd.uniform(2,3)
-                elif keyState[pygame.K_m]:
+                elif action == 'Right':
                     speedx = rnd.uniform(2,3)
-                else:
+                elif action == 'Straight':
                     speedx = rnd.uniform(-0.5, 0.5)
             
             # region 3 of the court
             else:
-                if keyState[pygame.K_n]:
+                if action == 'Left':
                     speedx = -rnd.uniform(4,6)
-                elif keyState[pygame.K_m]:
+                elif action == 'Right':
                     speedx = rnd.uniform(0,1)
-                else:
+                elif action == 'Straight':
                     speedx = rnd.uniform(-0.5, 0)
+            
+            force = player.choose_force()
 
-            force = -player.choose_force()
-        
         # top players stroke
         else:
             if LEFT_FIELD <= self.rect.x < MIDDLE_FIELD[0]:
-                if keyState[pygame.K_r]:
+                if action == 'Left':
                     speedx = -rnd.uniform(0,1)
-                elif keyState[pygame.K_t]:
+                elif action == 'Right':
                     speedx = rnd.uniform(4,6)
-                else:
+                elif action == 'Straight':
                     speedx = rnd.uniform(0, 0.5)
 
             # region 2 of the court
             elif MIDDLE_FIELD[0] <= self.rect.x < MIDDLE_FIELD[1]:
-                if keyState[pygame.K_r]:
+                if action == 'Left':
                     speedx = -rnd.uniform(2,3)
-                elif keyState[pygame.K_t]:
+                elif action == 'Right':
                     speedx = rnd.uniform(2,3)
-                else:
+                elif action == 'Straight':
                     speedx = rnd.uniform(-0.5, 0.5)
             
             # region 3 of the court
             else:
-                if keyState[pygame.K_r]:
+                if action == 'Left':
                     speedx = -rnd.uniform(4,6)
-                elif keyState[pygame.K_t]:
+                elif action == 'Right':
                     speedx = rnd.uniform(0,1)
-                else:
+                elif action == 'Straight':
                     speedx = rnd.uniform(-0.5, 0)
             
             force = player.choose_force()
@@ -267,6 +268,7 @@ class Ball(pygame.sprite.Sprite):
         if isinstance(player, Bottom_player):
             speedy = -speedy
         speedz = abs(force) - abs(speedx) - abs(speedy)
+        
         return (speedx, speedy, speedz)
 
 
@@ -293,46 +295,37 @@ class Ball(pygame.sprite.Sprite):
 
         # Updates rect only if it is moving
         if self.speedx != 0 or self.speedy != 0:
-            print("SPEED2:", self.speedx, self.speedy, self.speedz)
-            print("POS:", posx, posy, self.z)
+            #print("SPEED2:", self.speedx, self.speedy, self.speedz)
+            #print("POS:", posx, posy, self.z)
             self.rect = self.rect.move(posx, posy)
+        
+        return None 
 
 
     # Method to make a service
-    def serve(self, server):
-        keyState = pygame.key.get_pressed()
+    def serve(self, server):        
+        print("===============================")
+        print("           SERVING             ")
+        print("===============================")
+        if isinstance(server, Top_player):
+            self.speedx = rnd.uniform(1.5, 2.25)
+            server.image = images.camden_serve
+
+        else:
+            self.speedx = rnd.uniform(-1.75, -1.25)
+            server.image = images.robert_serve
         
-        # Waits for serve command
-        if (isinstance(server, Bottom_player) and keyState[pygame.K_PERIOD]) or (isinstance(server, Top_player) and keyState[pygame.K_TAB]):
-            # Top player pressed its serving button
-            if keyState[pygame.K_TAB]:
-                server.image = images.camden_serve
-            else:
-                server.image = images.robert_serve
-            
-            if isinstance(server, Top_player):
-                self.speedx = rnd.uniform(1.5, 2.25)
-            else:
-                self.speedx = -2
-            
-            force = server.choose_force()
-            print("FORCE", force)
-            self.speedy = (abs(force) - abs(self.speedx)) * 0.85
-            if isinstance(server, Bottom_player):
-                self.speedy = -self.speedy
-            self.speedz = abs(force) - abs(self.speedx) - abs(self.speedy)
-            print("SPEED:", self.speedx, self.speedy, self.speedz)
-            
-            self.update_position()
-            return 1
+        force = server.choose_force()
+        self.speedy = (abs(force) - abs(self.speedx)) * 0.85
+        if isinstance(server, Bottom_player):
+            self.speedy = -self.speedy
+        self.speedz = abs(force) - abs(self.speedx) - abs(self.speedy)
         
-        return 0
+        self.update_position()
 
 
-    # Updates ball movement
-    def update(self, player_to_strike):
-        keyState = pygame.key.get_pressed()
-
+    # Method to see if there was a point score
+    def scored_point(self):
         # check if point over and who won
         # the bottom side won
         if (self.rect.x > LIMIT_RIGHT or self.rect.x < LIMIT_LEFT or self.rect.y < LIMIT_TOP) or (abs(self.speedy) < 0.5 and self.rect.y < LIMIT_BOTTOM_NET):
@@ -349,38 +342,37 @@ class Ball(pygame.sprite.Sprite):
             self.rect.x = 0
             self.rect.y = 0
             return TOP_WON
-        
-        # Player to strike hits the ball
-        if self.rect.colliderect(player_to_strike):
-            effect = pygame.mixer.Sound('tennisserve.wav')
-            effect.play(0)
-            # Reset ball's height
-            self.z = NET_HEIGHT
-            # Get ball speeds
-            self.speedx, self.speedy, self.speedz = self.get_stroke_speed(keyState, player_to_strike)
-            
-            # Get the correct image
-            if isinstance(player_to_strike, Bottom_player):
-                image_forehand = images.robert_forehand
-                image_backhand = images.robert_backhand
-            else:
-                image_forehand = images.camden_forehand
-                image_backhand = images.camden_backhand
-            
-            # forehand animation
-            if self.rect.x > player_to_strike.rect.x + 10:
-                player_to_strike.image = image_forehand
-            #backhand animation
-            elif self.rect.x < player_to_strike.rect.x - 10:
-                player_to_strike.image = image_backhand
 
-            self.update_position()
-                
-            # To tell that the player stiked the ball
-            return HIT
+        # No one scored
+        return 0
+
+
+    # Updates ball movement when an agent hits the ball
+    def strike(self, player_to_strike, action):
+
+        effect = pygame.mixer.Sound('tennisserve.wav')
+        effect.play(0)
+        # Reset ball's height
+        self.z = NET_HEIGHT
+        # Get ball speeds
+        self.speedx, self.speedy, self.speedz = self.get_stroke_speed(player_to_strike, action)
+        
+        # Get the correct image
+        if isinstance(player_to_strike, Bottom_player):
+            image_forehand = images.robert_forehand
+            image_backhand = images.robert_backhand
+        else:
+            image_forehand = images.camden_forehand
+            image_backhand = images.camden_backhand
+        
+        # forehand animation
+        if self.rect.x > player_to_strike.rect.x + 10:
+            player_to_strike.image = image_forehand
+        #backhand animation
+        elif self.rect.x < player_to_strike.rect.x - 10:
+            player_to_strike.image = image_backhand
 
         # Updates ball position, given it's speed
         self.update_position()
 
-        # say no one has won yet
-        return 0
+        return HIT

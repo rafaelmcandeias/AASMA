@@ -1,6 +1,7 @@
 import pygame
 import operator
 from sprites import Top_player, Bottom_player, Ball
+from env import step_bp, step_tp
 
 # ------------------------------------------------------------
 
@@ -83,23 +84,10 @@ def create_objects(agents, name, name2):
     return top_player, bottom_player, tennisBall, all_sprites
 
 
-# Function to replace the agent's at the serving position 
-def restart_positions(top_player, bottom_player, tennisBall, server):
-    top_player.restart_position()
-    bottom_player.restart_position()
-    tennisBall.restart_position(server)
-    pygame.time.wait(750)
-
-
-# Changes player to serve
-def change_server(top_player, bottom_player, server):
-    if server == top_player:
-        return bottom_player
-    return top_player
-
-
-# Function to draw the court, each frame
-def draw_court(screen):
+# Function to draw the court lines, point screens and objects
+def draw_court(screen, bottom_player_score, top_player_score):
+    font = pygame.font.Font('freesansbold.ttf', 30)
+    #Draw the court
     pygame.draw.rect(screen, COURT, [175, 75, 350, 500])
     #outer left line
     pygame.draw.line(screen, WHITE, (175,574), (175,75), 7)
@@ -122,9 +110,67 @@ def draw_court(screen):
     #top serve line
     pygame.draw.line(screen, WHITE, (350,65), (350,75), 7)
 
+    # init scoreboard
+    top_player_box = font.render("TOP", True, WHITE, BLACK)
+    top_player_rect = top_player_box.get_rect()
+    top_player_rect.center = (625,50)
+    bottom_player_box = font.render("BOT", True, WHITE, BLACK)
+    bottom_player_rect = bottom_player_box.get_rect()
+    bottom_player_rect.center = (625,80)
+    screen.blit(top_player_box, top_player_rect)
+    screen.blit(bottom_player_box, bottom_player_rect)
+
+    scorebox = font.render(str(top_player_score), True, WHITE, BLACK)
+    scoreRect = scorebox.get_rect()
+    scoreRect.center = (670, 50)
+    screen.blit(scorebox, scoreRect)
+    scorebox2 = font.render(str(bottom_player_score), True, WHITE, BLACK)
+    scoreRect2 = scorebox2.get_rect()
+    scoreRect2.center = (670, 80)
+    screen.blit(scorebox2, scoreRect2)
+
+
+# Function to compute step for each agent
+def steps(player_to_strike, bottom_player, top_player, tennisBall, mode):
+    # Compute bot agent step
+    hit_bot = step_bp(player_to_strike, bottom_player, top_player, tennisBall, mode)
+    # Compute top agent step
+    hit_top = step_tp(player_to_strike, bottom_player, top_player, tennisBall, mode)
+    
+    return hit_bot == HIT or hit_top == HIT
+
+
+# Function to replace the agent's at the serving position 
+def restart_positions(top_player, bottom_player, tennisBall, server):
+    top_player.restart_position()
+    bottom_player.restart_position()
+    tennisBall.restart_position(server)
+    pygame.time.wait(750)
+
+
+# Function to render the new score boxes
+def render(screen, top_player_score, bottom_player_score):
+    # Update scoreboards
+    font = pygame.font.Font('freesansbold.ttf', 30)
+    scorebox = font.render(str(top_player_score), True, WHITE, BLACK)
+    scoreRect = scorebox.get_rect()
+    scoreRect.center = (670, 50)
+    screen.blit(scorebox, scoreRect)
+    scorebox2 = font.render(str(bottom_player_score), True, WHITE, BLACK)
+    scoreRect2 = scorebox2.get_rect()
+    scoreRect2.center = (670, 50)
+    screen.blit(scorebox2, scoreRect2)
+
+
+# Changes player to serve and to strike
+def change_roles(top_player, bottom_player, server):
+    if server == top_player:
+        return bottom_player, top_player
+    return top_player, bottom_player
+
 
 #Main game loop
-def play(screen, top_player, bottom_player, tennisBall, all_sprites):
+def play(screen, top_player, bottom_player, tennisBall, all_sprites, mode):
     # init scores
     bottom_player_score = 0
     top_player_score = 0
@@ -132,34 +178,44 @@ def play(screen, top_player, bottom_player, tennisBall, all_sprites):
     player_to_strike = bottom_player
     # flag to know when is to serve
     serve_flag = True
-    
+
     carryOn = True
     clock = pygame.time.Clock()
-    
-    # main play loop
+
+    # draw the court
+    draw_court(screen, bottom_player_score, top_player_score)
+
     while carryOn:
 
-        font = pygame.font.Font('freesansbold.ttf', 32)
+        pygame.font.Font('freesansbold.ttf', 32)
         screen.fill(OUT)
+        point = 0
+
+        draw_court(screen, bottom_player_score, top_player_score)
 
         # Serving time and server serves
         if serve_flag:
-            if tennisBall.serve(server) == 1:
-                serve_flag = False
+            tennisBall.serve(server)
+            serve_flag = False
 
         # Only computes rest if service was successful or it was not to serve
         else:
             # Players and ball only move if there was a service
-            top_player.update()
-            bottom_player.update()
-            point = tennisBall.update(player_to_strike)
+            # update. compute steps
+            hit = steps(player_to_strike, bottom_player, top_player, tennisBall, mode)
+            # Check if a point was scored
+            point = tennisBall.scored_point()
 
-            # Player to strike striked the ball
-            if point == HIT:
-                if player_to_strike == bottom_player:
-                    player_to_strike = top_player
-                else:
+            all_sprites.draw(screen)
+            pygame.display.update()
+            clock.tick(60)
+
+            # Player to strike striked the ball. Change it
+            if hit:
+                if player_to_strike == top_player:
                     player_to_strike = bottom_player
+                else:
+                    player_to_strike = top_player 
 
             # player scored
             elif point == BOT_WON or point == TOP_WON:
@@ -172,20 +228,13 @@ def play(screen, top_player, bottom_player, tennisBall, all_sprites):
                 # has someone won?
                 if bottom_player_score == 15 or top_player_score == 15:
                     break
-                # Update conditions
-                server = change_server(top_player, bottom_player, server)
+                # Changes server and player to strike
+                server, player_to_strike = change_roles(top_player, bottom_player, server)
+                # Re sets the agent's position
                 restart_positions(top_player, bottom_player, tennisBall, server)
+                # Renders the new score
+                render(screen, top_player_score, bottom_player_score)
                 serve_flag = True
-
-        #Render both scoreboards
-        scorebox = font.render(str(top_player_score), True, WHITE, BLACK)
-        scoreRect = scorebox.get_rect()
-        scoreRect.center = (625, 50)
-        screen.blit(scorebox, scoreRect)
-        scorebox2 = font.render(str(bottom_player_score), True, WHITE, BLACK)
-        scoreRect2 = scorebox2.get_rect()
-        scoreRect2.center = (625, 600)
-        screen.blit(scorebox2, scoreRect2)
 
         # To exit game
         for event in pygame.event.get():
@@ -195,14 +244,6 @@ def play(screen, top_player, bottom_player, tennisBall, all_sprites):
                 if event.key == pygame.K_ESCAPE:
                     carryOn = False
 
-        #Draw the court
-        draw_court(screen)
-
-        #Update
-        all_sprites.draw(screen)
-        pygame.display.update()
-        clock.tick(60)
-    
     return top_player_score, bottom_player_score
 
 
