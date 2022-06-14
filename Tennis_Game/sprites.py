@@ -39,7 +39,7 @@ MID_STAMINA = 0.75
 HIGH_STAMINA = 1
 
 # Vars to define net height
-NET_HEIGHT = 1.07
+NET_HEIGHT = 0.8
 HIT_HEIGHT = 1.5
 
 # Vars for physichs m/s²
@@ -278,7 +278,7 @@ class Ball(pygame.sprite.Sprite):
             
             force = player.choose_force()
         
-        speedy = (abs(force) - abs(speedx)) * rnd.uniform(0.7, 0.8)
+        speedy = (abs(force) - abs(speedx)) * 0.7
         if isinstance(player, Bottom_player):
             speedy = -speedy
         speedz = abs(force) - abs(speedx) - abs(speedy)
@@ -404,7 +404,7 @@ class Ball(pygame.sprite.Sprite):
             server.image = images.robert_serve
         
         force = server.choose_force()
-        self.speedy = (abs(force) - abs(self.speedx)) * 0.85
+        self.speedy = (abs(force) - abs(self.speedx)) * 0.7
         if isinstance(server, Bottom_player):
             self.speedy = -self.speedy
         self.speedz = abs(force) - abs(self.speedx) - abs(self.speedy)
