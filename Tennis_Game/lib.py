@@ -146,6 +146,9 @@ def play(screen, top_player, bottom_player, tennisBall, all_sprites, mode):
     carryOn = True
     clock = pygame.time.Clock()
 
+    # player turn to play, bot = 1 top = 2
+    turn = 0
+
     # draw the court
     draw_court(screen, bottom_player_score, top_player_score)
 
@@ -162,8 +165,9 @@ def play(screen, top_player, bottom_player, tennisBall, all_sprites, mode):
             break
 
         # update
-        step_bp(serve_flag, bottom_player, top_player, tennisBall, mode)
-        point = step_tp(serve_flag, bottom_player, top_player, tennisBall, mode)
+        turn = step_bp(serve_flag, bottom_player, top_player, tennisBall, mode, turn)
+        #TODO change functions to accept turn and step_tp has to return a tuple now
+        point, turn = step_tp(serve_flag, bottom_player, top_player, tennisBall, mode, turn)
         serve_flag = False
         all_sprites.draw(screen)
         pygame.display.update()

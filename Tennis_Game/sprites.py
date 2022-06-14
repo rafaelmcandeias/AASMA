@@ -199,23 +199,23 @@ class Ball(pygame.sprite.Sprite):
                 if action == 'Left':
                     speedx = -rnd.uniform(0,1)
                 elif action == 'Right':
-                    speedx = rnd.uniform(4,6)
+                    speedx = rnd.uniform(3,4)
                 elif action == 'Straight':
                     speedx = 0
             
             # region 2 of the court
             elif MIDDLE_FIELD[0] <= self.rect.x < MIDDLE_FIELD[1]:
                 if action == 'Left':
-                    speedx = -rnd.uniform(2,3)
+                    speedx = -rnd.uniform(1,2)
                 elif action == 'Right':
-                    speedx = rnd.uniform(2,3)
+                    speedx = rnd.uniform(1,2)
                 elif action == 'Straight':
                     speedx = 0
             
             # region 3 of the court
             else:
                 if action == 'Left':
-                    speedx = -rnd.uniform(4,6)
+                    speedx = -rnd.uniform(3,4)
                 elif action == 'Right':
                     speedx = rnd.uniform(0,1)
                 elif action == 'Straight':
@@ -228,29 +228,29 @@ class Ball(pygame.sprite.Sprite):
                 if action == 'Left':
                     speedx = -rnd.uniform(0,1)
                 elif action == 'Right':
-                    speedx = rnd.uniform(4,6)
+                    speedx = rnd.uniform(3,4)
                 elif action == 'Straight':
                     speedx = 0
 
             # region 2 of the court
             elif MIDDLE_FIELD[0] <= self.rect.x < MIDDLE_FIELD[1]:
                 if action == 'Left':
-                    speedx = -rnd.uniform(2,3)
+                    speedx = -rnd.uniform(1,2)
                 elif action == 'Right':
-                    speedx = rnd.uniform(2,3)
+                    speedx = rnd.uniform(1,2)
                 elif action == 'Straight':
                     speedx = 0
             
             # region 3 of the court
             else:
                 if action == 'Left':
-                    speedx = -rnd.uniform(4,6)
+                    speedx = -rnd.uniform(3,4)
                 elif action == 'Right':
                     speedx = rnd.uniform(0,1)
                 elif action == 'Straight':
                     speedx = 0
             
-        speedy = speedy = abs(player.choose_force()) * rnd.uniform(0.75, 0.95)
+        speedy = speedy = abs(player.choose_force()) * rnd.uniform(0.85, 0.95)
         if isinstance(player, Bottom_player):
             speedy = -speedy
 
@@ -263,7 +263,7 @@ class Ball(pygame.sprite.Sprite):
 
         # check if point over and who won
         # the bottom side won
-        if (self.rect.x > LIMIT_RIGHT or self.rect.x < LIMIT_LEFT or self.rect.y < LIMIT_TOP) or (not serve_flag and abs(self.speedy) < 0.5 and self.rect.y < LIMIT_BOTTOM_NET) or (self.rect.y == 350 and (self.rect.x > 525 or self.rect.x < 175) and self.speedy > 0):
+        if (self.rect.x > LIMIT_RIGHT or self.rect.x < LIMIT_LEFT or self.rect.y < LIMIT_TOP) or (not serve_flag and abs(self.speedy) < 0.7 and self.rect.y < LIMIT_BOTTOM_NET) or (self.rect.y == 350 and (self.rect.x > 525 or self.rect.x < 175) and self.speedy > 0):
             self.speedx = 0
             self.speedy = 0
             self.rect.x = 0
@@ -271,7 +271,7 @@ class Ball(pygame.sprite.Sprite):
             return 1
         
         # top side won
-        if (self.rect.x > LIMIT_RIGHT or self.rect.x < LIMIT_LEFT or self.rect.y > LIMIT_BOT) or (not serve_flag and abs(self.speedy) < 0.5 and self.rect.y > LIMIT_BOTTOM_NET) or (self.rect.y == 350 and (self.rect.x > 525 or self.rect.x < 175) and self.speedy < 0):   
+        if (self.rect.x > LIMIT_RIGHT or self.rect.x < LIMIT_LEFT or self.rect.y > LIMIT_BOT) or (not serve_flag and abs(self.speedy) < 0.7 and self.rect.y > LIMIT_BOTTOM_NET) or (self.rect.y == 350 and (self.rect.x > 525 or self.rect.x < 175) and self.speedy < 0):   
             self.speedx = 0
             self.speedy = 0
             self.rect.x = 0
@@ -307,6 +307,7 @@ class Ball(pygame.sprite.Sprite):
             self.speedy *= AIR_RESISTANCE
             #self.z += (self.speedz * seconds) - ((GRAVITY/2) * (seconds**2))
         self.rect = self.rect.move(self.speedx, self.speedy)
+        print("ball speed: ", self.speedy)
 
         # say no one has won yet
         return 0
