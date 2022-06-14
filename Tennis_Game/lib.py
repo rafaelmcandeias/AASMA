@@ -133,15 +133,36 @@ def draw_court(screen, bottom_player_score, top_player_score):
     screen.blit(scorebox2, scoreRect2)
 
 
+# Function to draw the stamina bar
+def draw_bars(screen, top_player, bottom_player):
+    barPosTop = (top_player.rect.topleft[0] + 5 ,top_player.rect.topleft[1] - 12)
+    barPosBottom = (bottom_player.rect.topleft[0] - 10,bottom_player.rect.topleft[1] - 12)
+    barSize = (55, 10)
+    borderColor = (0,0,0)
+    barColor = (0,128,0)
+    
+    # Draws top player's stamina
+    pygame.draw.rect(screen, borderColor, (barPosTop, barSize), 1)
+    innerPos = (barPosTop[0] + 3, barPosTop[1] + 3)
+    innerSize = ((barSize[0] - 6) * top_player.stamina, barSize[1] - 6)
+    pygame.draw.rect(screen, barColor, (innerPos, innerSize))
+    
+    # Draws bottom player's stamina
+    pygame.draw.rect(screen, borderColor, (barPosBottom, barSize), 1)
+    innerPos = (barPosBottom[0] + 3, barPosBottom[1] + 3)
+    innerSize = ((barSize[0] - 6) * bottom_player.stamina, barSize[1] - 6)
+    pygame.draw.rect(screen, barColor, (innerPos,innerSize))
+
+
 # Function to compute step for each agent
-def steps(player_to_strike, bottom_player, top_player, tennisBall):
+def steps(screen, player_to_strike, bottom_player, top_player, tennisBall):
     
     # Compute bot agent step. HIT or None
     hit_bot = step_bp(player_to_strike, bottom_player, top_player, tennisBall, bottom_player.mode)
     # Compute top agent step
     hit_top = step_tp(player_to_strike, bottom_player, top_player, tennisBall, top_player.mode)
     # Update ball position
-    event = tennisBall.update_position()
+    event = tennisBall.update_position(screen)
     
     # Has any agent stroke the ball
     if hit_bot == HIT or hit_top == HIT:
@@ -214,14 +235,14 @@ def play(screen, top_player, bottom_player, tennisBall, all_sprites):
 
         # Serving time and server serves
         if serve_flag:
-            tennisBall.serve(server)
+            tennisBall.serve(server, screen)
             serve_flag = False
 
         # Only computes rest if service was successful or it was not to serve
         else:
             # Players and ball only move if there was a service
             # update. compute steps
-            hit = steps(player_to_strike, bottom_player, top_player, tennisBall)
+            hit = steps(screen, player_to_strike, bottom_player, top_player, tennisBall)
             
             # Player to strike striked the ball. Change it
             if hit == HIT:
@@ -232,10 +253,6 @@ def play(screen, top_player, bottom_player, tennisBall, all_sprites):
             
             # Check if a point was scored
             point = tennisBall.scored_point(player_to_strike, hit)
-
-            all_sprites.draw(screen)
-            pygame.display.update()
-            clock.tick(60)
 
             # player scored
             if point == BOT_WON or point == TOP_WON:
@@ -258,6 +275,13 @@ def play(screen, top_player, bottom_player, tennisBall, all_sprites):
                 render(screen, top_player_score, bottom_player_score)
                 serve_flag = True
 
+            # Health bars
+            draw_bars(screen, top_player, bottom_player)
+
+            all_sprites.draw(screen)
+            pygame.display.update()
+            clock.tick(60)
+
         # To exit game
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -267,6 +291,7 @@ def play(screen, top_player, bottom_player, tennisBall, all_sprites):
                     carryOn = False
         
         print("-----------------------------------")
+        sleep(0.2)
 
     return top_player_score, bottom_player_score
 
