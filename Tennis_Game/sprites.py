@@ -8,8 +8,10 @@ import random
 
 # Vars to limit the field size
 LIMIT_LEFT = LIMIT_TOP = 0
-LIMIT_TOP_NET = 255
-LIMIT_BOTTOM_NET  = 300
+LIMIT_TOP_NET = 320
+LIMIT_BOTTOM_NET  = 330
+LIMIT_LEFT_NET  = 172.5
+LIMIT_RIGHT_NET  = 528
 LIMIT_BOT = 587
 LIMIT_RIGHT = 648
 # Vars to declare zones in the field
@@ -23,6 +25,8 @@ TOP_POS = (300, 40)
 BOT_WON = 1
 TOP_WON = 2
 HIT = 3
+NET = 4
+POINT = 5
 
 # Vars to divide stamina status
 # These divisions are universal.
@@ -34,10 +38,11 @@ HIGH_STAMINA = 1
 
 # Vars to define net height
 NET_HEIGHT = 1.07
+HIT_HEIGHT = 1.5
 
 # Vars for physichs
 AIR_RESISTANCE = 0.99
-GRAVITY = 9.8e-6
+GRAVITY = 4e-3
 # Assume constant time passes between frames in milliseconds
 TIME = 2.9
 
@@ -192,14 +197,17 @@ class Ball(pygame.sprite.Sprite):
         self.speedy = 0
         self.speedz = 0
         # Ball height.
-        self.z = NET_HEIGHT
+        self.z = HIT_HEIGHT
+        # Number of bounces
+        self.ground = 0
 
     # Method to place ball next to server
     def restart_position(self, server):
         if isinstance(server, Top_player):
             self.rect = self.rect.move(TOP_POS[0] - 30, TOP_POS[1] + 10)
         else:
-            self.rect = self.rect.move(BOTTOM_POS[0] + 10, BOTTOM_POS[1] + 10)
+            print("Restart position")
+            self.rect.x, self.rect.y = BOTTOM_POS[0] + 10, BOTTOM_POS[1] + 10
     
     
     def get_stroke_speed(self, player, action):
@@ -274,8 +282,14 @@ class Ball(pygame.sprite.Sprite):
 
     # Method to update the ball position
     def update_position(self):
+        print("Update")
         # Updates the ball position
         posx, posy = 0, 0
+
+        # Ball could not pass the net
+        if (LIMIT_LEFT_NET <= self.rect.x <= LIMIT_RIGHT_NET) and (LIMIT_TOP_NET <= self.rect.y <= LIMIT_BOTTOM_NET) and self.z <= NET_HEIGHT:
+            print("NET")
+            return NET
 
         # Movement requires update only if it is not stopped
         if self.speedx != 0:
@@ -289,30 +303,53 @@ class Ball(pygame.sprite.Sprite):
         
         # Updates posz ball
         # Gravity is always reducing z
+        print(self.rect.x, self.rect.y, self.z)
         if self.z > 0:
             self.speedz -= (GRAVITY/2) * (TIME**2)
             self.z += self.speedz * TIME
+            if self.z < 0:
+                self.z = 0
+    
+        # Bounce on the ground
+        elif self.ground == 0:
+            print("First Bounce")
+            self.speedx *= 0.66
+            self.speedy *= 0.66
+            self.speedz *= -0.66
+            self.ground = 1
+            self.speedz -= (GRAVITY/2) * (TIME**2)
+            self.z += self.speedz * TIME
+            self.compute_shadow()
+
+        # Second bounce => Point
+        elif self.ground == 1:
+            print("Second Bounce")
+            self.speedx, self.speedy, self.speedz = 0, 0, 0
+            self.ground = 2
+            return POINT
 
         # Updates rect only if it is moving
         if self.speedx != 0 or self.speedy != 0:
-            #print("SPEED2:", self.speedx, self.speedy, self.speedz)
-            #print("POS:", posx, posy, self.z)
             self.rect = self.rect.move(posx, posy)
         
-        return None 
+        return None
+
+
+    # Method to put a shadow where the ball will land
+    def compute_shadow(self):
+        pass
 
 
     # Method to make a service
-    def serve(self, server):        
-        print("===============================")
-        print("           SERVING             ")
-        print("===============================")
+    def serve(self, server): 
+        print("Serve")
+        self.z = HIT_HEIGHT
         if isinstance(server, Top_player):
-            self.speedx = rnd.uniform(1.5, 2.25)
+            self.speedx = rnd.uniform(1.5, 1.8)
             server.image = images.camden_serve
 
         else:
-            self.speedx = rnd.uniform(-1.75, -1.25)
+            self.speedx = rnd.uniform(-1.5, -1.25)
             server.image = images.robert_serve
         
         force = server.choose_force()
@@ -321,12 +358,24 @@ class Ball(pygame.sprite.Sprite):
             self.speedy = -self.speedy
         self.speedz = abs(force) - abs(self.speedx) - abs(self.speedy)
         
+        self.compute_shadow()
         self.update_position()
 
 
     # Method to see if there was a point score
-    def scored_point(self):
-        # check if point over and who won
+    def scored_point(self, player_to_strike, hit):
+        # Ball on net => Point for the one to strike
+        if hit == NET:
+            if isinstance(player_to_strike, Top_player):
+                return TOP_WON
+            return BOT_WON
+        
+        # Ball touched the ground twice => point for who stroke before
+        if hit == POINT:
+            if isinstance(player_to_strike, Top_player):
+                return BOT_WON
+            return TOP_WON
+
         # the bottom side won
         if (self.rect.x > LIMIT_RIGHT or self.rect.x < LIMIT_LEFT or self.rect.y < LIMIT_TOP) or (abs(self.speedy) < 0.5 and self.rect.y < LIMIT_BOTTOM_NET):
             self.speedx = 0
@@ -349,11 +398,11 @@ class Ball(pygame.sprite.Sprite):
 
     # Updates ball movement when an agent hits the ball
     def strike(self, player_to_strike, action):
-
+        print("Strike")
         effect = pygame.mixer.Sound('tennisserve.wav')
         effect.play(0)
         # Reset ball's height
-        self.z = NET_HEIGHT
+        self.z = HIT_HEIGHT
         # Get ball speeds
         self.speedx, self.speedy, self.speedz = self.get_stroke_speed(player_to_strike, action)
         
@@ -372,6 +421,8 @@ class Ball(pygame.sprite.Sprite):
         elif self.rect.x < player_to_strike.rect.x - 10:
             player_to_strike.image = image_backhand
 
+        # renders shadow where ball will fall
+        self.compute_shadow()
         # Updates ball position, given it's speed
         self.update_position()
 

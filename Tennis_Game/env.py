@@ -91,7 +91,8 @@ def step_bp(player_to_strike, bottom_player, top_player, ball, mode):
         else:
             action = get_movement()[np.random.choice(tuple(get_movement().keys()))]
             bottom_player.update(action)
-            # None
+            print("Bot action", action)
+            # None or POINT or NET
             return ball.update_position()
 
     # knows how to play, goes to the ball and knows where he should hit it
@@ -119,12 +120,12 @@ def step_bp(player_to_strike, bottom_player, top_player, ball, mode):
                 action = 'Stay'
             print("bottom moves", action)
             bottom_player.update(action)
-            # None
+            # None or POINT or NET
             return ball.update_positon()  
     
 
 # Function to compute top side step
-def step_tp(player_to_strike, bottom_player, top_player, ball, mode):
+def step_tp(player_to_strike, bottom_player, top_player, ball, mode, update_ball_flag):
     
     # Random mode
     if mode == 'random':
@@ -137,9 +138,12 @@ def step_tp(player_to_strike, bottom_player, top_player, ball, mode):
         else:
             action = get_movement()[np.random.choice(tuple(get_movement().keys()))]
             top_player.update(action)
-            # None
-            return ball.update_position()
-    
+            print("Top action", action)
+            # None or POINT or NET
+            if update_ball_flag:
+                return ball.update_position()
+            return None
+
     # Expert mode
     if mode == 'expert':
         # It is top's turn to hit the ball and it hits it
@@ -163,5 +167,5 @@ def step_tp(player_to_strike, bottom_player, top_player, ball, mode):
             else:
                 action = 'Stay'
             top_player.update(action)
-            # None
+            # None or POINT or NET
             return ball.update_position()

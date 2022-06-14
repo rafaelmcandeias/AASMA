@@ -22,6 +22,8 @@ BOT_INFO_POS = (300, 300)
 BOT_WON = 1
 TOP_WON = 2
 HIT = 3
+NET = 4
+POINT = 5
 MAX_POINTS = 15
 
 # ------------------------------------------------------------
@@ -90,25 +92,25 @@ def draw_court(screen, bottom_player_score, top_player_score):
     #Draw the court
     pygame.draw.rect(screen, COURT, [175, 75, 350, 500])
     #outer left line
-    pygame.draw.line(screen, WHITE, (175,574), (175,75), 7)
+    pygame.draw.line(screen, WHITE, (175, 574), (175, 75), 7)
     #outer right line
-    pygame.draw.line(screen, WHITE, (525,574), (525,75), 7)
+    pygame.draw.line(screen, WHITE, (525, 574), (525, 75), 7)
     #top center line
-    pygame.draw.line(screen, WHITE, (175, 200), (525,200), 7)
+    pygame.draw.line(screen, WHITE, (175, 200), (525, 200), 7)
     #top outer line
-    pygame.draw.line(screen, WHITE, (175, 78), (525,78), 7)
+    pygame.draw.line(screen, WHITE, (175, 78), (525, 78), 7)
     #bottom outer line
-    pygame.draw.line(screen, WHITE, (175, 571), (525,571), 7)
+    pygame.draw.line(screen, WHITE, (175, 571), (525, 571), 7)
     #bottom center line
-    pygame.draw.line(screen, WHITE, (175, 450), (525,450), 7)
+    pygame.draw.line(screen, WHITE, (175, 450), (525, 450), 7)
     #center white line
-    pygame.draw.line(screen, WHITE, (350,200), (350,450), 7)
+    pygame.draw.line(screen, WHITE, (350, 200), (350, 450), 7)
     #net
-    pygame.draw.line(screen, BLACK, (175,325), (525,325), 10)
+    pygame.draw.line(screen, BLACK, (172.5, 325), (528, 325), 10)
     #bottom serve line
-    pygame.draw.line(screen, WHITE, (350,574), (350,584), 7)
+    pygame.draw.line(screen, WHITE, (350, 574), (350, 584), 7)
     #top serve line
-    pygame.draw.line(screen, WHITE, (350,65), (350,75), 7)
+    pygame.draw.line(screen, WHITE, (350, 65), (350, 75), 7)
 
     # init scoreboard
     top_player_box = font.render("TOP", True, WHITE, BLACK)
@@ -132,12 +134,26 @@ def draw_court(screen, bottom_player_score, top_player_score):
 
 # Function to compute step for each agent
 def steps(player_to_strike, bottom_player, top_player, tennisBall, mode):
+    hit_top, update_ball_flag = None, True
     # Compute bot agent step
     hit_bot = step_bp(player_to_strike, bottom_player, top_player, tennisBall, mode)
+    # Bottom player did not strike, no NET nor POINT. Ball cannot be updated again
+    if hit_bot == None:
+        update_ball_flag = False
     # Compute top agent step
-    hit_top = step_tp(player_to_strike, bottom_player, top_player, tennisBall, mode)
+    hit_top = step_tp(player_to_strike, bottom_player, top_player, tennisBall, mode, update_ball_flag)
     
-    return hit_bot == HIT or hit_top == HIT
+    print("hits", hit_bot, hit_top)
+    if hit_bot == HIT or hit_top == HIT:
+        return HIT
+    
+    if hit_bot == NET or hit_top == NET:
+        return NET
+    
+    if hit_bot == POINT or hit_top == POINT:
+        return POINT
+    
+    return None
 
 
 # Function to replace the agent's at the serving position 
@@ -203,27 +219,30 @@ def play(screen, top_player, bottom_player, tennisBall, all_sprites, mode):
             # Players and ball only move if there was a service
             # update. compute steps
             hit = steps(player_to_strike, bottom_player, top_player, tennisBall, mode)
+            
+            # Player to strike striked the ball. Change it
+            if hit == HIT:
+                if player_to_strike == top_player:
+                    player_to_strike = bottom_player
+                else:
+                    player_to_strike = top_player
+            
             # Check if a point was scored
-            point = tennisBall.scored_point()
+            point = tennisBall.scored_point(player_to_strike, hit)
 
             all_sprites.draw(screen)
             pygame.display.update()
             clock.tick(60)
 
-            # Player to strike striked the ball. Change it
-            if hit:
-                if player_to_strike == top_player:
-                    player_to_strike = bottom_player
-                else:
-                    player_to_strike = top_player 
-
             # player scored
-            elif point == BOT_WON or point == TOP_WON:
+            if point == BOT_WON or point == TOP_WON:
                 # bottom player won
                 if point == BOT_WON:
+                    print("BOT WON")
                     bottom_player_score += 1
                 # top player won
                 else:
+                    print("TOP WON")
                     top_player_score += 1
                 # has someone won?
                 if bottom_player_score == 15 or top_player_score == 15:
@@ -243,6 +262,8 @@ def play(screen, top_player, bottom_player, tennisBall, all_sprites, mode):
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     carryOn = False
+        
+        print("-----------------------------------")
 
     return top_player_score, bottom_player_score
 
