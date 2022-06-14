@@ -222,7 +222,7 @@ class Ball(pygame.sprite.Sprite):
                 if action == 'Left':
                     speedx = -rnd.uniform(0,1)
                 elif action == 'Right':
-                    speedx = rnd.uniform(4,5)
+                    speedx = rnd.uniform(3, 3.5)
                 elif action == 'Straight':
                     speedx = rnd.uniform(0, 0.25)
             
@@ -238,7 +238,7 @@ class Ball(pygame.sprite.Sprite):
             # region 3 of the court
             else:
                 if action == 'Left':
-                    speedx = -rnd.uniform(4,5)
+                    speedx = -rnd.uniform(3, 3.5)
                 elif action == 'Right':
                     speedx = rnd.uniform(0,1)
                 elif action == 'Straight':
@@ -252,7 +252,7 @@ class Ball(pygame.sprite.Sprite):
                 if action == 'Left':
                     speedx = -rnd.uniform(0,1)
                 elif action == 'Right':
-                    speedx = rnd.uniform(4,6)
+                    speedx = rnd.uniform(3, 3.5)
                 elif action == 'Straight':
                     speedx = rnd.uniform(0, 0.5)
 
@@ -268,7 +268,7 @@ class Ball(pygame.sprite.Sprite):
             # region 3 of the court
             else:
                 if action == 'Left':
-                    speedx = -rnd.uniform(4,6)
+                    speedx = -rnd.uniform(3, 3.5)
                 elif action == 'Right':
                     speedx = rnd.uniform(0,1)
                 elif action == 'Straight':
@@ -364,7 +364,10 @@ class Ball(pygame.sprite.Sprite):
 
 
     # Method to make a service
-    def serve(self, server): 
+    def serve(self, server):
+        effect = pygame.mixer.Sound('tennisserve.wav')
+        effect.play(0)
+
         self.z = HIT_HEIGHT
         if isinstance(server, Top_player):
             self.speedx = rnd.uniform(1.5, 1.6)
@@ -425,7 +428,6 @@ class Ball(pygame.sprite.Sprite):
 
     # Updates ball movement when an agent hits the ball
     def strike(self, player_to_strike, action):
-        print("Strike")
         effect = pygame.mixer.Sound('tennisserve.wav')
         effect.play(0)
         # Reset ball's height

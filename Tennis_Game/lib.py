@@ -267,7 +267,6 @@ def play(screen, top_player, bottom_player, tennisBall, all_sprites):
                     carryOn = False
         
         print("-----------------------------------")
-        sleep(0.3)
 
     return top_player_score, bottom_player_score
 

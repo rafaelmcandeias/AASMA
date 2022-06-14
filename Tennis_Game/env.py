@@ -172,6 +172,7 @@ def step_tp(player_to_strike, bottom_player, top_player, ball, mode):
         # It is top's turn to hit the ball and it hits it
         if player_to_strike == top_player and ball.rect.colliderect(top_player):
             action = get_stroke_direction()[np.random.choice(tuple(get_stroke_direction().keys()))]
+            print("Top strike", action)
             # HIT
             return ball.strike(top_player, action)
 
@@ -189,6 +190,7 @@ def step_tp(player_to_strike, bottom_player, top_player, ball, mode):
             # Bottom player hits the ball
             if ball.rect.colliderect(top_player):
                 action = get_stroke_direction()[np.random.choice(list(get_stroke_direction().keys()))]
+                print("Top strike", action)
                 # HIT
                 return ball.strike(top_player, action)
            
@@ -225,7 +227,7 @@ def step_tp(player_to_strike, bottom_player, top_player, ball, mode):
                         action = 'Right'
                     else:
                         action = 'Left'
-                print("Top action", action)
+                print("Top strike", action)
                 # HIT
                 return ball.strike(top_player, action)
             
