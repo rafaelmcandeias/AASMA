@@ -159,13 +159,20 @@ def step_tp(player_to_strike, bottom_player, top_player, ball, mode, update_ball
                 # HIT
                 return ball.strike(top_player, action)
                         
+        elif player_to_strike == top_player:
+                if top_player.rect.x < 350:
+                    action = 'Left'
+                if top_player.rect.x > 350:
+                    action = 'Right'
+                else:
+                    action = 'Stay'
         else:
-            if ball.speedx > 0 and top_player.rect.x < get_x_of_ball(ball, top_player):
+            if top_player.rect.x > get_x_of_ball(ball, top_player):
                 action = 'Left'                
-            elif ball.speedx < 0 and top_player.rect.x > get_x_of_ball(ball, top_player):
+            elif top_player.rect.x < get_x_of_ball(ball, top_player):
                 action = 'Right'
             else:
                 action = 'Stay'
-            top_player.update(action)
-            # None or POINT or NET
-            return ball.update_position()
+        top_player.update(action)
+        # None or POINT or NET
+        return ball.update_position() 
