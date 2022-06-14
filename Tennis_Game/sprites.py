@@ -14,6 +14,8 @@ LIMIT_LEFT_NET  = 172.5
 LIMIT_RIGHT_NET  = 528
 LIMIT_BOT = 587
 LIMIT_RIGHT = 648
+LIMIT_TOP_FIELD = 78
+LIMIT_BOT_FIELD = 571
 # Vars to declare zones in the field
 LEFT_FIELD = 0.99175
 MIDDLE_FIELD = (275, 475)
@@ -51,7 +53,7 @@ TIME = 2.9
 # Player Class Super class for top and bottom players
 class Player(pygame.sprite.Sprite):
 
-    def __init__(self, name, speed, force, energy, image):
+    def __init__(self, name, speed, force, energy, mode, image):
         pygame.sprite.Sprite.__init__(self)
         # Agent's identifier
         self.name = name
@@ -68,11 +70,13 @@ class Player(pygame.sprite.Sprite):
         #  ]0, 1]
         if energy <= 0 or energy > 1:
             raise Exception("Invalid energy value")
-        else:
-            # Agent's energy value when started the game
-            self.energy = energy
-            # Agent's current amount of energy
-            self.stamina = energy
+        # Agent's energy value when started the game
+        self.energy = energy
+        # Agent's current amount of energy
+        self.stamina = energy
+        # Agent's play strategy
+        self.mode = mode
+
     
     # Function to reduce amount of stamina given applied force
     def lose_stamina(self, force):
@@ -106,7 +110,7 @@ class Player(pygame.sprite.Sprite):
 class Top_player(Player):
 
     def __init__(self, info):
-        super().__init__(info[0], info[1], info[2], info[3], images.camden)
+        super().__init__(info[0], info[1], info[2], info[3], info[4], images.camden)
         # Position the image -> agent
         self.rect.center = TOP_POS
     
@@ -147,7 +151,7 @@ class Bottom_player(Player):
 
     def __init__(self, info):
         # Initializes Bottom Agent with it's pos, speed and image
-        super().__init__(info[0], info[1], info[2], info[3], images.robert)
+        super().__init__(info[0], info[1], info[2], info[3], info[4], images.robert)
         # Position the image -> agent
         self.rect.center = BOTTOM_POS
     
@@ -307,12 +311,18 @@ class Ball(pygame.sprite.Sprite):
     
         # z <= 0 -> Bounce on the ground
         elif self.ground == 0:
-            # Ball touched out of bounds
-            print("First Bounce")
+            # Ball touched out of bounds x
             if (LEFT_FIELD <= self.rect.x <= LIMIT_LEFT_NET) or (LIMIT_RIGHT_NET <= self.rect.x <= LIMIT_RIGHT):
                 print("OFB")
                 return NET
             
+            # Ball touched out of bounds y
+            if self.rect.y < LIMIT_TOP_FIELD or self.rect.y > LIMIT_BOT_FIELD:
+                print("OFB")
+                return NET
+            
+            # Calculate rebounce
+            print("First Bounce")
             self.speedx *= 0.66
             self.speedy *= 0.66
             self.speedz *= -0.66

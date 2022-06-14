@@ -63,9 +63,9 @@ def read_file():
         if line[0] != '#':
             # Name, Speed, Force, Energy
             info = line.split(" ")
-            name, speed, force, energy = info[0], info[1], info[2], info[3]
-            # agents = {'Rodrigo':('Rodrigo', 4, 3, 4), ...}
-            agents[name] = (name, float(speed), float(force), float(energy))
+            name, speed, force, energy, mode = info[0], info[1], info[2], info[3], info[4].rstrip()
+            # agents = {'Rodrigo':('Rodrigo', 4, 3, 4, 'random'), ...}
+            agents[name] = (name, float(speed), float(force), float(energy), mode)
     return agents
 
 
@@ -134,26 +134,29 @@ def draw_court(screen, bottom_player_score, top_player_score):
 
 
 # Function to compute step for each agent
-def steps(player_to_strike, bottom_player, top_player, tennisBall, mode):
+def steps(player_to_strike, bottom_player, top_player, tennisBall):
     hit_top, update_ball_flag = None, True
     # Compute bot agent step
-    hit_bot = step_bp(player_to_strike, bottom_player, top_player, tennisBall, "expert")
+    hit_bot = step_bp(player_to_strike, bottom_player, top_player, tennisBall, bottom_player.mode)
     # Bottom player did not strike, no NET nor POINT. Ball cannot be updated again
     if hit_bot == None:
         update_ball_flag = False
     # Compute top agent step
-    hit_top = step_tp(player_to_strike, bottom_player, top_player, tennisBall, "expert", update_ball_flag)
+    hit_top = step_tp(player_to_strike, bottom_player, top_player, tennisBall, top_player.mode, update_ball_flag)
     
-    print("hits", hit_bot, hit_top)
+    # Has any agent stroke the ball
     if hit_bot == HIT or hit_top == HIT:
         return HIT
     
+    # Did the ball not pass the net
     if hit_bot == NET or hit_top == NET:
         return NET
     
+    # Did anyone score a point
     if hit_bot == POINT or hit_top == POINT:
         return POINT
     
+    # Nothing interesting happened
     return None
 
 
@@ -187,7 +190,7 @@ def change_roles(top_player, bottom_player, server):
 
 
 #Main game loop
-def play(screen, top_player, bottom_player, tennisBall, all_sprites, mode):
+def play(screen, top_player, bottom_player, tennisBall, all_sprites):
     # init scores
     bottom_player_score = 0
     top_player_score = 0
@@ -219,7 +222,7 @@ def play(screen, top_player, bottom_player, tennisBall, all_sprites, mode):
         else:
             # Players and ball only move if there was a service
             # update. compute steps
-            hit = steps(player_to_strike, bottom_player, top_player, tennisBall, mode)
+            hit = steps(player_to_strike, bottom_player, top_player, tennisBall)
             
             # Player to strike striked the ball. Change it
             if hit == HIT:
@@ -265,7 +268,7 @@ def play(screen, top_player, bottom_player, tennisBall, all_sprites, mode):
                     carryOn = False
         
         print("-----------------------------------")
-        #sleep(0.3)
+        sleep(0.1)
 
     return top_player_score, bottom_player_score
 

@@ -1,4 +1,17 @@
-# Name Speed Force Energy
+# Name Speed Force Energy Mode
 # 0 < Energy <= 1
-Rodrigo 6 5 0.7
-Joao 6 5 0.7
+Random_S_W_W 7 4 0.3 random
+Random_W_S_W 4 7 0.3 random
+Random_W_W_S 4 4 1 random
+#
+#Beginner_S_W_W 7 3 0.3 beginner
+#Beginner_W_S_W 4 7 0.3 beginner
+#Beginner_W_W_S 4 3 1 beginner
+#
+#Expert_S_W_W 7 3 0.3 expert
+#Expert_W_S_W 4 7 0.3 expert
+#Expert_W_W_S 4 3 1 expert
+#
+#Pro_S_W_W 7 3 0.3 pro
+#Pro_W_S_W 4 7 0.3 pro
+#Pro_W_W_S 4 3 1 pro

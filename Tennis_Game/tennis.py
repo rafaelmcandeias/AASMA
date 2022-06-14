@@ -1,8 +1,5 @@
 from lib import pygame, create_screen, start_screen, read_file, create_objects, play, print_scoreboard
 
-# Vars for game types
-RANDOM = "random"
-EXPERT = "expert"
 
 # Main execution
 if __name__ == "__main__":
@@ -26,12 +23,13 @@ if __name__ == "__main__":
             # An agent can not play against itself
             if bot_name == top_name:
                 continue
-            
-            print(top_name + " vs " + bot_name)
+
             # Creates agents and ball
             top_player, bottom_player, ball, all_sprites = create_objects(agents, top_name, bot_name)
+            
+            print(top_name + " " + top_player.mode + " vs " + bot_name + " " + bottom_player.mode)
             # Executes game
-            top_score, bot_score = play(screen, top_player, bottom_player, ball, all_sprites, RANDOM)
+            top_score, bot_score = play(screen, top_player, bottom_player, ball, all_sprites)
             print(top_name + ": " + str(top_score) + " / " + bot_name + ": " + str(bot_score) + "\n")
 
             # Updates score dictionaire

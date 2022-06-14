@@ -80,8 +80,8 @@ def get_x_of_ball(ball, player):
 
 # step substitutyes the ball.update
 def step_bp(player_to_strike, bottom_player, top_player, ball, mode):
-    
-    if mode == 'random':
+
+    if mode == "random":
         # It is bottom's turn to hit the ball and it hits it
         if player_to_strike == bottom_player and ball.rect.colliderect(bottom_player):
             action = get_stroke_direction()[np.random.choice(tuple(get_stroke_direction().keys()))]
@@ -96,7 +96,7 @@ def step_bp(player_to_strike, bottom_player, top_player, ball, mode):
             return ball.update_position()
 
     # Walks to ball x
-    if mode == 'beginner':
+    if mode == "beginner":
         # Bottom player turn
         if player_to_strike == bottom_player:
             # Bottom player hits the ball
@@ -168,7 +168,7 @@ def step_bp(player_to_strike, bottom_player, top_player, ball, mode):
 def step_tp(player_to_strike, bottom_player, top_player, ball, mode, update_ball_flag):
     
     # Random mode
-    if mode == 'random':
+    if mode == "random":
         # It is top's turn to hit the ball and it hits it
         if player_to_strike == top_player and ball.rect.colliderect(top_player):
             action = get_stroke_direction()[np.random.choice(tuple(get_stroke_direction().keys()))]
@@ -185,7 +185,7 @@ def step_tp(player_to_strike, bottom_player, top_player, ball, mode, update_ball
             return None
     
     # Walks to ball x
-    if mode == 'beginner':
+    if mode == "beginner":
         
         # Top player turn
         if player_to_strike == top_player:
