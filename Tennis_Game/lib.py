@@ -23,7 +23,7 @@ BOT_INFO_POS = (300, 300)
 BOT_WON = 1
 TOP_WON = 2
 HIT = 3
-NET = 4
+FAULT = 4
 POINT = 5
 MAX_POINTS = 15
 
@@ -135,25 +135,24 @@ def draw_court(screen, bottom_player_score, top_player_score):
 
 # Function to compute step for each agent
 def steps(player_to_strike, bottom_player, top_player, tennisBall):
-    hit_top, update_ball_flag = None, True
-    # Compute bot agent step
+    
+    # Compute bot agent step. HIT or None
     hit_bot = step_bp(player_to_strike, bottom_player, top_player, tennisBall, bottom_player.mode)
-    # Bottom player did not strike, no NET nor POINT. Ball cannot be updated again
-    if hit_bot == None:
-        update_ball_flag = False
     # Compute top agent step
-    hit_top = step_tp(player_to_strike, bottom_player, top_player, tennisBall, top_player.mode, update_ball_flag)
+    hit_top = step_tp(player_to_strike, bottom_player, top_player, tennisBall, top_player.mode)
+    # Update ball position
+    event = tennisBall.update_position()
     
     # Has any agent stroke the ball
     if hit_bot == HIT or hit_top == HIT:
         return HIT
     
     # Did the ball not pass the net
-    if hit_bot == NET or hit_top == NET:
-        return NET
+    if event == FAULT:
+        return FAULT
     
     # Did anyone score a point
-    if hit_bot == POINT or hit_top == POINT:
+    if event == POINT:
         return POINT
     
     # Nothing interesting happened
@@ -268,7 +267,7 @@ def play(screen, top_player, bottom_player, tennisBall, all_sprites):
                     carryOn = False
         
         print("-----------------------------------")
-        sleep(0.1)
+        sleep(0.3)
 
     return top_player_score, bottom_player_score
 

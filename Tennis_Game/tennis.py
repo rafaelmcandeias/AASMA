@@ -14,10 +14,13 @@ if __name__ == "__main__":
     agents = read_file()
     # Create scores dict
     scores = {k:0 for k in agents.keys()}
+    
     # All agents against each other
     print("\n\n===========================")
     print("        GAME STARTED       ")
     print("===========================\n")
+    
+    # Takes n! games 
     for top_name in set(agents.keys()):
         for bot_name in set(agents.keys()):
             # An agent can not play against itself

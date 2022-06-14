@@ -27,7 +27,7 @@ TOP_POS = (300, 40)
 BOT_WON = 1
 TOP_WON = 2
 HIT = 3
-NET = 4
+FAULT = 4
 POINT = 5
 
 # Vars to divide stamina status
@@ -286,41 +286,49 @@ class Ball(pygame.sprite.Sprite):
 
     # Method to update the ball position
     def update_position(self):
-        print("Update")
-        # Updates the ball position
-        posx, posy = 0, 0
+        desloc_x, desloc_y = 0, 0
 
         # Movement requires update only if it is not stopped
         if self.speedx != 0:
             self.speedx *= AIR_RESISTANCE
-            posx += self.speedx * TIME
+            desloc_x += self.speedx * TIME
         
-        # Updates posy ball
+        # Updates desloc_y ball
         if self.speedy != 0:
             self.speedy *= AIR_RESISTANCE            
-            posy += self.speedy * TIME 
+            desloc_y += self.speedy * TIME 
         
         # Updates posz ball
         # Gravity is always reducing z
-        print(self.rect.x, self.rect.y, self.z)
         if self.z > 0:
             self.speedz -= (GRAVITY/2) * (TIME**2)
             self.z += self.speedz * TIME
             if self.z < 0:
                 self.z = 0
     
+        print(desloc_x, desloc_y, self.z)
         # z <= 0 -> Bounce on the ground
-        elif self.ground == 0:
+        if self.z <= 0 and self.ground == 0:
             # Ball touched out of bounds x
             if (LEFT_FIELD <= self.rect.x <= LIMIT_LEFT_NET) or (LIMIT_RIGHT_NET <= self.rect.x <= LIMIT_RIGHT):
                 print("OFB")
-                return NET
+                return FAULT
             
             # Ball touched out of bounds y
             if self.rect.y < LIMIT_TOP_FIELD or self.rect.y > LIMIT_BOT_FIELD:
                 print("OFB")
-                return NET
+                return FAULT
             
+            # Ball touched player's side first
+            # Top player hitted the ball
+            if self.speedy > 0 and self.rect.y < LIMIT_TOP_NET:
+                print("NEEDS TO TOUCH TOP SIDE")
+                return FAULT
+            # Bot player hitted the ball
+            if self.speedy < 0 and self.rect.y > LIMIT_BOTTOM_NET:
+                print("NEEDS TO TOUCH BOTTOM SIDE")
+                return FAULT
+    
             # Calculate rebounce
             print("First Bounce")
             self.speedx *= 0.66
@@ -332,7 +340,7 @@ class Ball(pygame.sprite.Sprite):
             self.compute_shadow()
 
         # z <= 0 and Second bounce -> Point
-        elif self.ground == 1:
+        elif self.z <= 0 and self.ground == 1:
             print("Second Bounce")
             self.speedx, self.speedy, self.speedz = 0, 0, 0
             self.ground = 2
@@ -340,12 +348,12 @@ class Ball(pygame.sprite.Sprite):
 
         # Updates rect only if it is moving
         if self.speedx != 0 or self.speedy != 0:
-            self.rect = self.rect.move(posx, posy)
+            self.rect = self.rect.move(desloc_x, desloc_y)
 
         # Ball could not pass the net
         if (LIMIT_LEFT_NET <= self.rect.x <= LIMIT_RIGHT_NET) and (LIMIT_TOP_NET <= self.rect.y <= LIMIT_BOTTOM_NET) and self.z <= NET_HEIGHT:
             print("NET")
-            return NET
+            return FAULT
         
         return None
 
@@ -357,7 +365,6 @@ class Ball(pygame.sprite.Sprite):
 
     # Method to make a service
     def serve(self, server): 
-        print("Serve")
         self.z = HIT_HEIGHT
         if isinstance(server, Top_player):
             self.speedx = rnd.uniform(1.5, 1.6)
@@ -372,15 +379,20 @@ class Ball(pygame.sprite.Sprite):
         if isinstance(server, Bottom_player):
             self.speedy = -self.speedy
         self.speedz = abs(force) - abs(self.speedx) - abs(self.speedy)
+
+        print("Serve speed", self.speedx, self.speedy, self.speedz)
         
         self.compute_shadow()
+        # Updates ball position, given it's speed
         self.update_position()
+
+        self.ground = 0
 
 
     # Method to see if there was a point score
     def scored_point(self, player_to_strike, hit):
         # Ball on net => Point for the one to strike
-        if hit == NET:
+        if hit == FAULT:
             if isinstance(player_to_strike, Top_player):
                 return TOP_WON
             return BOT_WON
@@ -438,7 +450,7 @@ class Ball(pygame.sprite.Sprite):
 
         # renders shadow where ball will fall
         self.compute_shadow()
-        # Updates ball position, given it's speed
-        self.update_position() 
+
+        self.ground = 0
 
         return HIT

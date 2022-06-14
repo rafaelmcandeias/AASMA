@@ -92,8 +92,7 @@ def step_bp(player_to_strike, bottom_player, top_player, ball, mode):
             action = get_movement()[np.random.choice(tuple(get_movement().keys()))]
             bottom_player.update(action)
             print("Bot action", action)
-            # None or POINT or NET
-            return ball.update_position()
+            return None
 
     # Walks to ball x
     if mode == "beginner":
@@ -114,16 +113,16 @@ def step_bp(player_to_strike, bottom_player, top_player, ball, mode):
                     action = 'Stay'
                 print("Bot action", action)
                 bottom_player.update(action)
-                # None or POINT or NET
-                return ball.update_position()
+                # None
+                return None
 
         # Not its turn to hit the ball
         else:
             action = 'Stay'
             print("Bot action", action)
             bottom_player.update(action)
-            # None or POINT or NET
-            return ball.update_position()
+            # None
+            return None
 
     # knows how to play, goes to the ball and knows where he should hit it
     if mode == "expert":
@@ -152,20 +151,19 @@ def step_bp(player_to_strike, bottom_player, top_player, ball, mode):
                     action = 'Stay'
                 print("Bot action", action)
                 bottom_player.update(action)
-                # None or NET or POINT
-                return ball.update_position()
+                return None
         
         # Top's turn to play          
         else:
             action = 'Stay'
             # Does nothing
             bottom_player.update(action)
-            # None or NET or POINT
-            return ball.update_position()
+            # None
+            return None
 
 
 # Function to compute top side step
-def step_tp(player_to_strike, bottom_player, top_player, ball, mode, update_ball_flag):
+def step_tp(player_to_strike, bottom_player, top_player, ball, mode):
     
     # Random mode
     if mode == "random":
@@ -179,9 +177,6 @@ def step_tp(player_to_strike, bottom_player, top_player, ball, mode, update_ball
             action = get_movement()[np.random.choice(tuple(get_movement().keys()))]
             top_player.update(action)
             print("Top action", action)
-            # None or POINT or NET
-            if update_ball_flag:
-                return ball.update_position()
             return None
     
     # Walks to ball x
@@ -204,11 +199,6 @@ def step_tp(player_to_strike, bottom_player, top_player, ball, mode, update_ball
                     action = 'Stay'
                 print("Top action", action)
                 top_player.update(action)
-
-                # Update ball position only if it was already by step bot
-                if update_ball_flag:
-                    # None or POINT or NET
-                    return ball.update_position()
                 return None
 
         # Not its turn to hit the ball
@@ -216,11 +206,6 @@ def step_tp(player_to_strike, bottom_player, top_player, ball, mode, update_ball
             action = 'Stay'
             print("Top action", action)
             top_player.update(action)
-            
-            # Update ball position only if it was already by step bot
-            if update_ball_flag:
-                # None or POINT or NET
-                return ball.update_position()
             return None
 
     # knows how to play, goes to the ball and knows where he should hit it
@@ -252,10 +237,6 @@ def step_tp(player_to_strike, bottom_player, top_player, ball, mode, update_ball
                     action = 'Stay'
                 print("Top action", action)
                 top_player.update(action)
-                # Bottom step did not update the flag
-                if update_ball_flag:
-                    # None or NET or POINT
-                    return ball.update_position()
                 return None
         
         # Top's turn to play          
@@ -263,8 +244,4 @@ def step_tp(player_to_strike, bottom_player, top_player, ball, mode, update_ball
             action = 'Stay'
             # Does nothing
             top_player.update(action)
-            # Bottom step did not update the flag
-            if update_ball_flag:
-                # None or NET or POINT
-                return ball.update_position()
             return None
