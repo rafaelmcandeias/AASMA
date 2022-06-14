@@ -1,3 +1,4 @@
+from time import sleep
 import pygame
 import operator
 from sprites import Top_player, Bottom_player, Ball
@@ -136,12 +137,12 @@ def draw_court(screen, bottom_player_score, top_player_score):
 def steps(player_to_strike, bottom_player, top_player, tennisBall, mode):
     hit_top, update_ball_flag = None, True
     # Compute bot agent step
-    hit_bot = step_bp(player_to_strike, bottom_player, top_player, tennisBall, mode)
+    hit_bot = step_bp(player_to_strike, bottom_player, top_player, tennisBall, "expert")
     # Bottom player did not strike, no NET nor POINT. Ball cannot be updated again
     if hit_bot == None:
         update_ball_flag = False
     # Compute top agent step
-    hit_top = step_tp(player_to_strike, bottom_player, top_player, tennisBall, mode, update_ball_flag)
+    hit_top = step_tp(player_to_strike, bottom_player, top_player, tennisBall, "expert", update_ball_flag)
     
     print("hits", hit_bot, hit_top)
     if hit_bot == HIT or hit_top == HIT:
@@ -264,6 +265,7 @@ def play(screen, top_player, bottom_player, tennisBall, all_sprites, mode):
                     carryOn = False
         
         print("-----------------------------------")
+        #sleep(0.3)
 
     return top_player_score, bottom_player_score
 

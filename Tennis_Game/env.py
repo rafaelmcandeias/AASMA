@@ -95,41 +95,74 @@ def step_bp(player_to_strike, bottom_player, top_player, ball, mode):
             # None or POINT or NET
             return ball.update_position()
 
-    # knows how to play, goes to the ball and knows where he should hit it
-    if mode == "expert":
-        if player_to_strike == bottom_player and ball.rect.colliderect(bottom_player):
-            # gets the other player place on the court
-            if (top_player.rect.x > 350 and bottom_player.rect.x < 225) or (top_player.rect.x < 350 and bottom_player.rect.x > 475):
-                action = 'Straight'
+    # Walks to ball x
+    if mode == 'beginner':
+        # Bottom player turn
+        if player_to_strike == bottom_player:
+            # Bottom player hits the ball
+            if ball.rect.colliderect(bottom_player):
+                action = get_stroke_direction()[np.random.choice(list(get_stroke_direction().keys()))]
+                # HIT
+                return ball.strike(bottom_player, action)
+           
             else:
-                if top_player.rect.x < 350:
+                if bottom_player.rect.x > get_x_of_ball(ball, bottom_player):
+                    action = 'Left'                
+                elif bottom_player.rect.x < get_x_of_ball(ball, bottom_player):
                     action = 'Right'
                 else:
-                    action = 'Left'
-            # HIT
-            return ball.strike(bottom_player, action)
-                    
-        elif player_to_strike == top_player:
-            if bottom_player.rect.x > 350:
-                    action = 'Left'
-            elif bottom_player.rect.x < 350:
-                action = 'Right'
-            else:
-                action = 'Stay'
-        
+                    action = 'Stay'
+                print("Bot action", action)
+                bottom_player.update(action)
+                # None or POINT or NET
+                return ball.update_position()
+
+        # Not its turn to hit the ball
         else:
-            if bottom_player.rect.x > get_x_of_ball(ball, bottom_player):
-                action = 'Left'                
-            elif bottom_player.rect.x < get_x_of_ball(ball, bottom_player):
-                action = 'Right'
-            else:
-                action = 'Stay'
-            
-            print("bottom moves", action)
+            action = 'Stay'
+            print("Bot action", action)
             bottom_player.update(action)
             # None or POINT or NET
-            return ball.update_positon()
-    
+            return ball.update_position()
+
+    # knows how to play, goes to the ball and knows where he should hit it
+    if mode == "expert":
+        # Bottom's turn to strike
+        if player_to_strike == bottom_player:
+            # Player stroke
+            if ball.rect.colliderect(bottom_player):
+                # gets the other player place on the court
+                if (top_player.rect.x > 300 and top_player.rect.x < 225) or (top_player.rect.x < 300 and top_player.rect.x > 475):
+                    action = 'Straight'
+                else:
+                    if top_player.rect.x < 300:
+                        action = 'Right'
+                    else:
+                        action = 'Left'
+                print("Bot action", action)
+                # HIT
+                return ball.strike(bottom_player, action)
+            # Did not hit the ball
+            else:
+                if bottom_player.rect.x > get_x_of_ball(ball, bottom_player):
+                    action = 'Left'                
+                elif bottom_player.rect.x < get_x_of_ball(ball, bottom_player):
+                    action = 'Right'
+                else:
+                    action = 'Stay'
+                print("Bot action", action)
+                bottom_player.update(action)
+                # None or NET or POINT
+                return ball.update_position()
+        
+        # Top's turn to play          
+        else:
+            action = 'Stay'
+            # Does nothing
+            bottom_player.update(action)
+            # None or NET or POINT
+            return ball.update_position()
+
 
 # Function to compute top side step
 def step_tp(player_to_strike, bottom_player, top_player, ball, mode, update_ball_flag):
@@ -150,36 +183,88 @@ def step_tp(player_to_strike, bottom_player, top_player, ball, mode, update_ball
             if update_ball_flag:
                 return ball.update_position()
             return None
-
-    # Expert mode
-    if mode == 'expert':
-        # It is top's turn to hit the ball and it hits it
-        if player_to_strike == top_player and ball.rect.colliderect(top_player):
-                # gets the other player place on the court
-                if (bottom_player.rect.x > 350 and top_player.rect.x < 225) or (bottom_player.rect.x < 350 and top_player.rect.x > 475):
-                    action = 'Straight'
-                else:
-                    if bottom_player.rect.x < 350:
-                        action = 'Left'
-                    else:
-                        action = 'Right'
+    
+    # Walks to ball x
+    if mode == 'beginner':
+        
+        # Top player turn
+        if player_to_strike == top_player:
+            # Bottom player hits the ball
+            if ball.rect.colliderect(top_player):
+                action = get_stroke_direction()[np.random.choice(list(get_stroke_direction().keys()))]
                 # HIT
                 return ball.strike(top_player, action)
-                        
-        elif player_to_strike == top_player:
-                if top_player.rect.x < 350:
-                    action = 'Left'
-                if top_player.rect.x > 350:
+           
+            else:
+                if top_player.rect.x > get_x_of_ball(ball, top_player):
+                    action = 'Left'                
+                elif top_player.rect.x < get_x_of_ball(ball, top_player):
                     action = 'Right'
                 else:
                     action = 'Stay'
+                print("Top action", action)
+                top_player.update(action)
+
+                # Update ball position only if it was already by step bot
+                if update_ball_flag:
+                    # None or POINT or NET
+                    return ball.update_position()
+                return None
+
+        # Not its turn to hit the ball
         else:
-            if top_player.rect.x > get_x_of_ball(ball, top_player):
-                action = 'Left'                
-            elif top_player.rect.x < get_x_of_ball(ball, top_player):
-                action = 'Right'
+            action = 'Stay'
+            print("Top action", action)
+            top_player.update(action)
+            
+            # Update ball position only if it was already by step bot
+            if update_ball_flag:
+                # None or POINT or NET
+                return ball.update_position()
+            return None
+
+    # knows how to play, goes to the ball and knows where he should hit it
+    if mode == "expert":
+        # Top's turn to strike
+        if player_to_strike == top_player:
+            
+            # Player stroke
+            if ball.rect.colliderect(top_player):
+                # gets the other player place on the court
+                if (bottom_player.rect.x > 300 and bottom_player.rect.x < 225) or (bottom_player.rect.x < 300 and bottom_player.rect.x > 475):
+                    action = 'Straight'
+                else:
+                    if bottom_player.rect.x < 300:
+                        action = 'Right'
+                    else:
+                        action = 'Left'
+                print("Top action", action)
+                # HIT
+                return ball.strike(top_player, action)
+            
+            # Did not hit the ball
             else:
-                action = 'Stay'
-        top_player.update(action)
-        # None or POINT or NET
-        return ball.update_position() 
+                if top_player.rect.x > get_x_of_ball(ball, top_player):
+                    action = 'Left'                
+                elif top_player.rect.x < get_x_of_ball(ball, top_player):
+                    action = 'Right'
+                else:
+                    action = 'Stay'
+                print("Top action", action)
+                top_player.update(action)
+                # Bottom step did not update the flag
+                if update_ball_flag:
+                    # None or NET or POINT
+                    return ball.update_position()
+                return None
+        
+        # Top's turn to play          
+        else:
+            action = 'Stay'
+            # Does nothing
+            top_player.update(action)
+            # Bottom step did not update the flag
+            if update_ball_flag:
+                # None or NET or POINT
+                return ball.update_position()
+            return None

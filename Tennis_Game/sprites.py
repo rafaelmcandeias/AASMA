@@ -218,7 +218,7 @@ class Ball(pygame.sprite.Sprite):
                 if action == 'Left':
                     speedx = -rnd.uniform(0,1)
                 elif action == 'Right':
-                    speedx = rnd.uniform(4,6)
+                    speedx = rnd.uniform(4,5)
                 elif action == 'Straight':
                     speedx = rnd.uniform(0, 0.25)
             
@@ -234,7 +234,7 @@ class Ball(pygame.sprite.Sprite):
             # region 3 of the court
             else:
                 if action == 'Left':
-                    speedx = -rnd.uniform(4,6)
+                    speedx = -rnd.uniform(4,5)
                 elif action == 'Right':
                     speedx = rnd.uniform(0,1)
                 elif action == 'Straight':
@@ -286,11 +286,6 @@ class Ball(pygame.sprite.Sprite):
         # Updates the ball position
         posx, posy = 0, 0
 
-        # Ball could not pass the net
-        if (LIMIT_LEFT_NET <= self.rect.x <= LIMIT_RIGHT_NET) and (LIMIT_TOP_NET <= self.rect.y <= LIMIT_BOTTOM_NET) and self.z <= NET_HEIGHT:
-            print("NET")
-            return NET
-
         # Movement requires update only if it is not stopped
         if self.speedx != 0:
             self.speedx *= AIR_RESISTANCE
@@ -310,9 +305,14 @@ class Ball(pygame.sprite.Sprite):
             if self.z < 0:
                 self.z = 0
     
-        # Bounce on the ground
+        # z <= 0 -> Bounce on the ground
         elif self.ground == 0:
+            # Ball touched out of bounds
             print("First Bounce")
+            if (LEFT_FIELD <= self.rect.x <= LIMIT_LEFT_NET) or (LIMIT_RIGHT_NET <= self.rect.x <= LIMIT_RIGHT):
+                print("OFB")
+                return NET
+            
             self.speedx *= 0.66
             self.speedy *= 0.66
             self.speedz *= -0.66
@@ -321,7 +321,7 @@ class Ball(pygame.sprite.Sprite):
             self.z += self.speedz * TIME
             self.compute_shadow()
 
-        # Second bounce => Point
+        # z <= 0 and Second bounce -> Point
         elif self.ground == 1:
             print("Second Bounce")
             self.speedx, self.speedy, self.speedz = 0, 0, 0
@@ -331,6 +331,11 @@ class Ball(pygame.sprite.Sprite):
         # Updates rect only if it is moving
         if self.speedx != 0 or self.speedy != 0:
             self.rect = self.rect.move(posx, posy)
+
+        # Ball could not pass the net
+        if (LIMIT_LEFT_NET <= self.rect.x <= LIMIT_RIGHT_NET) and (LIMIT_TOP_NET <= self.rect.y <= LIMIT_BOTTOM_NET) and self.z <= NET_HEIGHT:
+            print("NET")
+            return NET
         
         return None
 
@@ -345,7 +350,7 @@ class Ball(pygame.sprite.Sprite):
         print("Serve")
         self.z = HIT_HEIGHT
         if isinstance(server, Top_player):
-            self.speedx = rnd.uniform(1.5, 1.8)
+            self.speedx = rnd.uniform(1.5, 1.6)
             server.image = images.camden_serve
 
         else:
@@ -424,6 +429,6 @@ class Ball(pygame.sprite.Sprite):
         # renders shadow where ball will fall
         self.compute_shadow()
         # Updates ball position, given it's speed
-        self.update_position()
+        self.update_position() 
 
         return HIT
