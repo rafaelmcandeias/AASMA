@@ -96,32 +96,39 @@ def step_bp(player_to_strike, bottom_player, top_player, ball, mode):
             return ball.update_position()
 
     # knows how to play, goes to the ball and knows where he should hit it
-    elif mode == "expert":
+    if mode == "expert":
         if player_to_strike == bottom_player and ball.rect.colliderect(bottom_player):
             # gets the other player place on the court
             if (top_player.rect.x > 350 and bottom_player.rect.x < 225) or (top_player.rect.x < 350 and bottom_player.rect.x > 475):
                 action = 'Straight'
             else:
                 if top_player.rect.x < 350:
-                    action = 'Left'
-                else:
                     action = 'Right'
+                else:
+                    action = 'Left'
             # HIT
             return ball.strike(bottom_player, action)
                     
-        else:
-            if abs(ball.speedy) < 1:
-                action = 'Up'
-            elif ball.speedx > 0 and bottom_player.rect.x < get_x_of_ball(ball, bottom_player):
-                action = 'Left'                
-            elif ball.speedx < 0 and bottom_player.rect.x > get_x_of_ball(ball, bottom_player):
+        elif player_to_strike == top_player:
+            if bottom_player.rect.x > 350:
+                    action = 'Left'
+            elif bottom_player.rect.x < 350:
                 action = 'Right'
             else:
                 action = 'Stay'
+        
+        else:
+            if bottom_player.rect.x > get_x_of_ball(ball, bottom_player):
+                action = 'Left'                
+            elif bottom_player.rect.x < get_x_of_ball(ball, bottom_player):
+                action = 'Right'
+            else:
+                action = 'Stay'
+            
             print("bottom moves", action)
             bottom_player.update(action)
             # None or POINT or NET
-            return ball.update_positon()  
+            return ball.update_positon()
     
 
 # Function to compute top side step
