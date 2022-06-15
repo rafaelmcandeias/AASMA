@@ -14,8 +14,8 @@ LIMIT_RIGHT = 648
 # Vars for net limits
 LIMIT_TOP_NET = 320
 LIMIT_BOTTOM_NET  = 330
-LIMIT_LEFT_NET  = 172.5
-LIMIT_RIGHT_NET  = 528
+LIMIT_LEFT_NET  = 175
+LIMIT_RIGHT_NET  = 525
 
 # Vars to declare zones in the field
 LIMIT_TOP_FIELD = 78

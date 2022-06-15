@@ -18,12 +18,19 @@ YELLOW = (255, 0, 255)
 
 AIR_RESISTANCE = 0.99
 
-LIMIT_LEFT_NET  = 172.5
-LIMIT_RIGHT_NET  = 528
+LIMIT_LEFT_NET  = 175
+LIMIT_RIGHT_NET  = 525
 
 LIMIT_TOP_FIELD = 78
 LIMIT_BOT_FIELD = 571
 
+LIMIT_TOP_NET = 320
+LIMIT_BOTTOM_NET  = 330
+MIDDLE_X = LIMIT_LEFT_NET + ((LIMIT_RIGHT_NET - LIMIT_LEFT_NET) / 2) - 40
+MIDDLE_Y_TOP = LIMIT_TOP_FIELD + ((LIMIT_TOP_NET - LIMIT_TOP_FIELD) / 2)
+MIDDLE_Y_BOT = LIMIT_BOTTOM_NET + ((LIMIT_BOT_FIELD - LIMIT_BOTTOM_NET) / 2) - 40
+
+# ---------------------------------------------------------------------------
 
 # actions space is:
 # Move: Up, Down, Left, Right
@@ -146,8 +153,10 @@ def step_bp(player_to_strike, bottom_player, top_player, ball, mode):
                 
                 # Ball inside limits
                 if action == None:
-                    # Will move sideways
-                    if abs(bottom_player.rect.x - ball.rect.x) >= abs(bottom_player.rect.y - ball.rect.y):
+                    # Will move sideways because
+                    # player's X is further away than player's y to ball
+                    # OR cant go pass the net -> irrelevant moving on y 
+                    if (bottom_player.rect.y == LIMIT_BOTTOM_NET and ball.rect.y <= LIMIT_BOTTOM_NET) or (abs(bottom_player.rect.x - ball.rect.x) >= abs(bottom_player.rect.y - ball.rect.y)):
                         if bottom_player.rect.x < ball.rect.x:
                             action = 'Right'
                         elif bottom_player.rect.x > ball.rect.x:
@@ -178,7 +187,9 @@ def step_bp(player_to_strike, bottom_player, top_player, ball, mode):
 
     # Goes to the ball and knows where it should send it.
     # Does not waste stamina for balls going OFB
+    # Walks to middle of field for repositioning
     if mode == "pro":
+        action = None
         # Bottom's turn to strike
         if player_to_strike == bottom_player:
             
@@ -198,23 +209,39 @@ def step_bp(player_to_strike, bottom_player, top_player, ball, mode):
             
             # Did not hit the ball
             else:
-                # Will move sideways
-                if abs(bottom_player.rect.x - ball.rect.x) >= abs(bottom_player.rect.y - ball.rect.y):
-                    if bottom_player.rect.x < ball.rect.x:
-                        action = 'Right'
-                    elif bottom_player.rect.x > ball.rect.x:
-                        action = 'Left'
-                    else:
+                 # Ball might hit the ground Outside Of Bounds
+                # It is wise to save stamina
+                if ball.ground == 0:
+                    # Is outside of x field
+                    if ball.rect.x < LIMIT_LEFT_NET or ball.rect.x > LIMIT_RIGHT_NET:
                         action = 'Stay'
+                        print("Bot saving energy")
+                    # Is outside of y field
+                    elif ball.rect.y > LIMIT_BOT_FIELD:
+                        action = 'Stay'
+                        print("Bot saving energy")
                 
-                # Will move frontways
-                else:
-                    if bottom_player.rect.y < ball.rect.y:
-                        action = 'Down' 
-                    elif bottom_player.rect.y > ball.rect.y:
-                        action = 'Up'
+                # Ball inside limits
+                if action == None:
+                    # Will move sideways because
+                    # player's X is further away than player's y to ball
+                    # OR cant go pass the net -> irrelevant moving on y 
+                    if (bottom_player.rect.y == LIMIT_BOTTOM_NET and ball.rect.y <= LIMIT_BOTTOM_NET) or (abs(bottom_player.rect.x - ball.rect.x) >= abs(bottom_player.rect.y - ball.rect.y)):
+                        if bottom_player.rect.x < ball.rect.x:
+                            action = 'Right'
+                        elif bottom_player.rect.x > ball.rect.x:
+                            action = 'Left'
+                        else:
+                            action = 'Stay'
+
+                    # Will move frontways
                     else:
-                        action = 'Stay'
+                        if bottom_player.rect.y < ball.rect.y:
+                            action = 'Down' 
+                        elif bottom_player.rect.y > ball.rect.y:
+                            action = 'Up'
+                        else:
+                            action = 'Stay'
                 
                 print("Bot action", action)
                 bottom_player.update(action)
@@ -222,8 +249,25 @@ def step_bp(player_to_strike, bottom_player, top_player, ball, mode):
         
         # Top's turn to play          
         else:
-            action = 'Stay'
-            # Does nothing
+            # Bot x not in x middle interval
+            if not (MIDDLE_X - 5 <= bottom_player.rect.x <= MIDDLE_X + 5):
+                # It is left from interval
+                if bottom_player.rect.x < MIDDLE_X - 5:
+                    action = 'Right'
+                # It is right from interval
+                elif bottom_player.rect.x > MIDDLE_X + 5:
+                    action = 'Left'
+            
+            # Bot x in correct place but y not in interval
+            elif not (MIDDLE_Y_BOT - 5 <= bottom_player.rect.y <= MIDDLE_Y_BOT + 5):
+                # It is up from interval
+                if bottom_player.rect.y < MIDDLE_Y_BOT:
+                    action = 'Down'
+                # it is down from interval
+                elif bottom_player.rect.y > MIDDLE_Y_BOT:
+                    action = 'Up'
+            
+            print("Bot reposition", action)
             bottom_player.update(action)
             return None
 
@@ -315,8 +359,10 @@ def step_tp(player_to_strike, bottom_player, top_player, ball, mode):
                 
                 # Ball inside limits
                 if action == None:
-                    # Will move sideways
-                    if abs(top_player.rect.x - ball.rect.x) >= abs(top_player.rect.y - ball.rect.y):
+                    # Will move sideways because
+                    # player's X is further away than player's y to ball
+                    # OR cant go pass the net -> irrelevant moving on y 
+                    if (top_player.rect.y == LIMIT_TOP_NET and ball.rect.y >= LIMIT_TOP_NET) or (abs(top_player.rect.x - ball.rect.x) >= abs(top_player.rect.y - ball.rect.y)):
                         if top_player.rect.x < ball.rect.x:
                             action = 'Right'
                         elif top_player.rect.x > ball.rect.x:
@@ -348,6 +394,7 @@ def step_tp(player_to_strike, bottom_player, top_player, ball, mode):
     # Goes to the ball and knows where it should send it.
     # Does not waste stamina for balls going OFB
     if mode == "pro":
+        action = None
         # Top's turn to strike
         if player_to_strike == top_player:
             
@@ -367,23 +414,39 @@ def step_tp(player_to_strike, bottom_player, top_player, ball, mode):
             
             # Did not hit the ball
             else:
-                # Will move sideways
-                if abs(top_player.rect.x - ball.rect.x) >= abs(top_player.rect.y - ball.rect.y):
-                    if top_player.rect.x < ball.rect.x:
-                        action = 'Right'
-                    elif top_player.rect.x > ball.rect.x:
-                        action = 'Left'
-                    else:
+                # Ball might hit the ground Outside Of Bounds
+                # It is wise to save stamina
+                if ball.ground == 0:
+                    # Is outside of x field
+                    if (top_player.rect.y == LIMIT_TOP_NET and ball.rect.y >= LIMIT_TOP_NET) or ball.rect.x > LIMIT_RIGHT_NET:
                         action = 'Stay'
+                        print("Top saving energy")
+                    # Is outside of y field
+                    elif ball.rect.y < LIMIT_TOP_FIELD:
+                        action = 'Stay'
+                        print("Top saving energy")
                 
-                # Will move frontways
-                else:
-                    if top_player.rect.y < ball.rect.y:
-                        action = 'Down' 
-                    elif top_player.rect.y > ball.rect.y:
-                        action = 'Up'
+                # Ball inside limits
+                if action == None:
+                    # Will move sideways because
+                    # player's X is further away than player's y to ball
+                    # OR cant go pass the net -> irrelevant moving on y 
+                    if ball.rect.y >= LIMIT_TOP_NET or (abs(top_player.rect.x - ball.rect.x) >= abs(top_player.rect.y - ball.rect.y)):
+                        if top_player.rect.x < ball.rect.x:
+                            action = 'Right'
+                        elif top_player.rect.x > ball.rect.x:
+                            action = 'Left'
+                        else:
+                            action = 'Stay'
+                    
+                    # Will move frontways
                     else:
-                        action = 'Stay'
+                        if top_player.rect.y < ball.rect.y:
+                            action = 'Down' 
+                        elif top_player.rect.y > ball.rect.y:
+                            action = 'Up'
+                        else:
+                            action = 'Stay'
                 
                 print("Top action", action)
                 top_player.update(action)
@@ -391,7 +454,24 @@ def step_tp(player_to_strike, bottom_player, top_player, ball, mode):
         
         # Bottom's turn to play          
         else:
-            action = 'Stay'
-            # Does nothing
+            # Top x not in x middle interval
+            if not (MIDDLE_X - 5 <= top_player.rect.x <= MIDDLE_X + 5):
+                # It is left from interval
+                if top_player.rect.x < MIDDLE_X - 5:
+                    action = 'Right'
+                # It is right from interval
+                elif top_player.rect.x > MIDDLE_X + 5:
+                    action = 'Left'
+            
+            # Top x in correct place but y not in interval
+            elif not (MIDDLE_Y_TOP - 5 <= top_player.rect.y <= MIDDLE_Y_TOP + 5):
+                # It is up from interval
+                if top_player.rect.y < MIDDLE_Y_TOP:
+                    action = 'Down'
+                # it is down from interval
+                elif top_player.rect.y > MIDDLE_Y_TOP:
+                    action = 'Up'
+                
+            print("Top reposition", action)
             top_player.update(action)
             return None
