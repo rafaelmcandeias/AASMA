@@ -4,18 +4,16 @@
 #
 # Name Speed Force Energy Mode
 #
-#Random_S_W_W 7 5.5 1 random
-#Random_W_S_W 4 7 1 random
-#Random_W_W_S 4 5.5 1 random
+# random com velocidade alta, caso contrário faria movimentos muito curtos
+Random_S_W_W 7 5.5 1 random
 #
-#Beginner_S_W_W 5 5.5 1 beginner
-#Beginner_W_S_W 4 7 1 beginner
-#Beginner_W_W_S 4 5.5 1 beginner
+# begginer expert e pro com velocidades mais pequenas caso contrario chegavam a bola mt rapido
+Beginner_S_W_W 5 5.5 1 beginner
 #
-#Expert_S_W_W 2 7 1 expert
-#Expert_W_S_W 2 7 1 expert
-#Expert_W_W_S 4 5.5 1 expert
+#Expert_S_W_W 2.5 5.5 1 expert
 #
-Pro_S_W_W 2.5 5.5 1 pro
-Pro_W_S_W 2.5 5.5 1 pro
-#Pro_W_W_S 4 5.5 1 pro
+#Pro_S_W_W 2.5 5.5 1 pro
+#
+#
+# O simulador é realista
+# 

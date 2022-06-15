@@ -21,6 +21,7 @@ if __name__ == "__main__":
     print("===========================\n")
     
     # Takes n! games 
+    # for _ range(32):
     for top_name in set(agents.keys()):
         for bot_name in set(agents.keys()):
             # An agent can not play against itself
