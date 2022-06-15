@@ -8,15 +8,18 @@ import random
 
 # Vars to limit the field size
 LIMIT_LEFT = LIMIT_TOP = 0
+LIMIT_BOT = 587
+LIMIT_RIGHT = 648
+
+# Vars for net limits
 LIMIT_TOP_NET = 320
 LIMIT_BOTTOM_NET  = 330
 LIMIT_LEFT_NET  = 172.5
 LIMIT_RIGHT_NET  = 528
-LIMIT_BOT = 587
-LIMIT_RIGHT = 648
+
+# Vars to declare zones in the field
 LIMIT_TOP_FIELD = 78
 LIMIT_BOT_FIELD = 571
-# Vars to declare zones in the field
 LEFT_FIELD = 0.99175
 MIDDLE_FIELD = (275, 475)
 
@@ -392,7 +395,8 @@ class Ball(pygame.sprite.Sprite):
     # Method to make a service
     def serve(self, server, screen):
         effect = pygame.mixer.Sound('tennisserve.wav')
-        #effect.play(0)
+        effect.play(0)
+        print("Serve")
 
         self.z = HIT_HEIGHT
         if isinstance(server, Top_player):
@@ -409,7 +413,6 @@ class Ball(pygame.sprite.Sprite):
             self.speedy = -self.speedy
         self.speedz = abs(force) - abs(self.speedx) - abs(self.speedy)
 
-        print("Serve speed", self.speedx, self.speedy, self.speedz)
 
         # Updates ball position, given it's speed
         self.update_position(screen)
@@ -454,7 +457,8 @@ class Ball(pygame.sprite.Sprite):
     # Updates ball movement when an agent hits the ball
     def strike(self, player_to_strike, action):
         effect = pygame.mixer.Sound('tennisserve.wav')
-        #effect.play(0)
+        effect.play(0)
+        
         # Reset ball's height
         self.z = HIT_HEIGHT
         # Get ball speeds

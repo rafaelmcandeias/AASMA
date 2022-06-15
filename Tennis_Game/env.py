@@ -18,31 +18,12 @@ YELLOW = (255, 0, 255)
 
 AIR_RESISTANCE = 0.99
 
+LIMIT_LEFT_NET  = 172.5
+LIMIT_RIGHT_NET  = 528
 
-def reset(point, screen, bottom_player, top_player, bottom_player_score, top_player_score):
+LIMIT_TOP_FIELD = 78
+LIMIT_BOT_FIELD = 571
 
-    # bottom player won
-    if point == 1: 
-        bottom_player_score += 1
-        lib.restart_player_position_bs(top_player, bottom_player)
-
-    # top player won
-    elif point == 2:
-        top_player_score += 1
-        lib.restart_player_position_ts(top_player, bottom_player)
-    
-    # Update scoreboards
-    font = pygame.font.Font('freesansbold.ttf', 30)
-    scorebox = font.render(str(top_player_score), True, WHITE, BLACK)
-    scoreRect = scorebox.get_rect()
-    scoreRect.center = (670, 50)
-    screen.blit(scorebox, scoreRect)
-    scorebox2 = font.render(str(bottom_player_score), True, WHITE, BLACK)
-    scoreRect2 = scorebox2.get_rect()
-    scoreRect2.center = (670, 50)
-    screen.blit(scorebox2, scoreRect2)
-
-    return True
 
 # actions space is:
 # Move: Up, Down, Left, Right
@@ -95,6 +76,7 @@ def step_bp(player_to_strike, bottom_player, top_player, ball, mode):
             print("Bot action", action)
             return None
 
+
     # Walks to ball x
     if mode == "beginner":
         # Bottom player turn
@@ -126,31 +108,62 @@ def step_bp(player_to_strike, bottom_player, top_player, ball, mode):
             # None
             return None
 
-    # knows how to play, goes to the ball and knows where he should hit it
+
+    # Goes to the ball and knows where it should send it.
+    # Does not waste stamina for balls going OFB
     if mode == "expert":
+        action = None
         # Bottom's turn to strike
         if player_to_strike == bottom_player:
+            
             # Player stroke
             if ball.rect.colliderect(bottom_player):
                 # gets the other player place on the court
-                if (top_player.rect.x > 300 and top_player.rect.x < 225) or (top_player.rect.x < 300 and top_player.rect.x > 475):
+                if (top_player.rect.x > 300 and bottom_player.rect.x < 225) or (top_player.rect.x < 300 and bottom_player.rect.x > 475):
                     action = 'Straight'
                 else:
                     if top_player.rect.x < 300:
                         action = 'Right'
                     else:
                         action = 'Left'
-                print("Bot strike", action)
+                print("Bottom strike", action)
                 # HIT
                 return ball.strike(bottom_player, action)
+            
             # Did not hit the ball
             else:
-                if bottom_player.rect.x > get_x_of_ball(ball, bottom_player):
-                    action = 'Left'                
-                elif bottom_player.rect.x < get_x_of_ball(ball, bottom_player):
-                    action = 'Right'
-                else:
-                    action = 'Stay'
+                # Ball might hit the ground Outside Of Bounds
+                # It is wise to save stamina
+                if ball.ground == 0:
+                    # Is outside of x field
+                    if ball.rect.x < LIMIT_LEFT_NET or ball.rect.x > LIMIT_RIGHT_NET:
+                        action = 'Stay'
+                        print("Bot saving energy")
+                    # Is outside of y field
+                    elif ball.rect.y > LIMIT_BOT_FIELD:
+                        action = 'Stay'
+                        print("Bot saving energy")
+                
+                # Ball inside limits
+                if action == None:
+                    # Will move sideways
+                    if abs(bottom_player.rect.x - ball.rect.x) >= abs(bottom_player.rect.y - ball.rect.y):
+                        if bottom_player.rect.x < ball.rect.x:
+                            action = 'Right'
+                        elif bottom_player.rect.x > ball.rect.x:
+                            action = 'Left'
+                        else:
+                            action = 'Stay'
+
+                    # Will move frontways
+                    else:
+                        if bottom_player.rect.y < ball.rect.y:
+                            action = 'Down' 
+                        elif bottom_player.rect.y > ball.rect.y:
+                            action = 'Up'
+                        else:
+                            action = 'Stay'
+                
                 print("Bot action", action)
                 bottom_player.update(action)
                 return None
@@ -160,7 +173,58 @@ def step_bp(player_to_strike, bottom_player, top_player, ball, mode):
             action = 'Stay'
             # Does nothing
             bottom_player.update(action)
-            # None
+            return None
+    
+
+    # Goes to the ball and knows where it should send it.
+    # Does not waste stamina for balls going OFB
+    if mode == "pro":
+        # Bottom's turn to strike
+        if player_to_strike == bottom_player:
+            
+            # Player stroke
+            if ball.rect.colliderect(bottom_player):
+                # gets the other player place on the court
+                if (top_player.rect.x > 300 and bottom_player.rect.x < 225) or (top_player.rect.x < 300 and bottom_player.rect.x > 475):
+                    action = 'Straight'
+                else:
+                    if top_player.rect.x < 300:
+                        action = 'Right'
+                    else:
+                        action = 'Left'
+                print("Bottom strike", action)
+                # HIT
+                return ball.strike(bottom_player, action)
+            
+            # Did not hit the ball
+            else:
+                # Will move sideways
+                if abs(bottom_player.rect.x - ball.rect.x) >= abs(bottom_player.rect.y - ball.rect.y):
+                    if bottom_player.rect.x < ball.rect.x:
+                        action = 'Right'
+                    elif bottom_player.rect.x > ball.rect.x:
+                        action = 'Left'
+                    else:
+                        action = 'Stay'
+                
+                # Will move frontways
+                else:
+                    if bottom_player.rect.y < ball.rect.y:
+                        action = 'Down' 
+                    elif bottom_player.rect.y > ball.rect.y:
+                        action = 'Up'
+                    else:
+                        action = 'Stay'
+                
+                print("Bot action", action)
+                bottom_player.update(action)
+                return None
+        
+        # Top's turn to play          
+        else:
+            action = 'Stay'
+            # Does nothing
+            bottom_player.update(action)
             return None
 
 
@@ -182,7 +246,8 @@ def step_tp(player_to_strike, bottom_player, top_player, ball, mode):
             print("Top action", action)
             return None
     
-    # Walks to ball x
+
+    # Walks to ball x and sends randomly
     if mode == "beginner":
         
         # Top player turn
@@ -212,15 +277,18 @@ def step_tp(player_to_strike, bottom_player, top_player, ball, mode):
             top_player.update(action)
             return None
 
-    # knows how to play, goes to the ball and knows where he should hit it
+
+    # Goes to the ball and knows where it should send it.
+    # Does not waste stamina for balls going OFB
     if mode == "expert":
+        action = None
         # Top's turn to strike
         if player_to_strike == top_player:
             
             # Player stroke
             if ball.rect.colliderect(top_player):
                 # gets the other player place on the court
-                if (bottom_player.rect.x > 300 and bottom_player.rect.x < 225) or (bottom_player.rect.x < 300 and bottom_player.rect.x > 475):
+                if (bottom_player.rect.x > 300 and top_player.rect.x < 225) or (bottom_player.rect.x < 300 and top_player.rect.x > 475):
                     action = 'Straight'
                 else:
                     if bottom_player.rect.x < 300:
@@ -233,17 +301,95 @@ def step_tp(player_to_strike, bottom_player, top_player, ball, mode):
             
             # Did not hit the ball
             else:
-                if top_player.rect.x > get_x_of_ball(ball, top_player):
-                    action = 'Left'                
-                elif top_player.rect.x < get_x_of_ball(ball, top_player):
-                    action = 'Right'
-                else:
-                    action = 'Stay'
+                # Ball might hit the ground Outside Of Bounds
+                # It is wise to save stamina
+                if ball.ground == 0:
+                    # Is outside of x field
+                    if ball.rect.x < LIMIT_LEFT_NET or ball.rect.x > LIMIT_RIGHT_NET:
+                        action = 'Stay'
+                        print("Top saving energy")
+                    # Is outside of y field
+                    elif ball.rect.y < LIMIT_TOP_FIELD:
+                        action = 'Stay'
+                        print("Top saving energy")
+                
+                # Ball inside limits
+                if action == None:
+                    # Will move sideways
+                    if abs(top_player.rect.x - ball.rect.x) >= abs(top_player.rect.y - ball.rect.y):
+                        if top_player.rect.x < ball.rect.x:
+                            action = 'Right'
+                        elif top_player.rect.x > ball.rect.x:
+                            action = 'Left'
+                        else:
+                            action = 'Stay'
+                    
+                    # Will move frontways
+                    else:
+                        if top_player.rect.y < ball.rect.y:
+                            action = 'Down' 
+                        elif top_player.rect.y > ball.rect.y:
+                            action = 'Up'
+                        else:
+                            action = 'Stay'
+                
                 print("Top action", action)
                 top_player.update(action)
                 return None
         
-        # Top's turn to play          
+        # Bottom's turn to play          
+        else:
+            action = 'Stay'
+            # Does nothing
+            top_player.update(action)
+            return None
+    
+
+    # Goes to the ball and knows where it should send it.
+    # Does not waste stamina for balls going OFB
+    if mode == "pro":
+        # Top's turn to strike
+        if player_to_strike == top_player:
+            
+            # Player stroke
+            if ball.rect.colliderect(top_player):
+                # gets the other player place on the court
+                if (bottom_player.rect.x > 300 and top_player.rect.x < 225) or (bottom_player.rect.x < 300 and top_player.rect.x > 475):
+                    action = 'Straight'
+                else:
+                    if bottom_player.rect.x < 300:
+                        action = 'Right'
+                    else:
+                        action = 'Left'
+                print("Top strike", action)
+                # HIT
+                return ball.strike(top_player, action)
+            
+            # Did not hit the ball
+            else:
+                # Will move sideways
+                if abs(top_player.rect.x - ball.rect.x) >= abs(top_player.rect.y - ball.rect.y):
+                    if top_player.rect.x < ball.rect.x:
+                        action = 'Right'
+                    elif top_player.rect.x > ball.rect.x:
+                        action = 'Left'
+                    else:
+                        action = 'Stay'
+                
+                # Will move frontways
+                else:
+                    if top_player.rect.y < ball.rect.y:
+                        action = 'Down' 
+                    elif top_player.rect.y > ball.rect.y:
+                        action = 'Up'
+                    else:
+                        action = 'Stay'
+                
+                print("Top action", action)
+                top_player.update(action)
+                return None
+        
+        # Bottom's turn to play          
         else:
             action = 'Stay'
             # Does nothing
