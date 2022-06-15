@@ -258,11 +258,11 @@ def play(screen, top_player, bottom_player, tennisBall, all_sprites):
             if point == BOT_WON or point == TOP_WON:
                 # bottom player won
                 if point == BOT_WON:
-                    print("BOT WON")
+                    #print("BOT WON")
                     bottom_player_score += 1
                 # top player won
                 else:
-                    print("TOP WON")
+                    #print("TOP WON")
                     top_player_score += 1
                 # has someone won?
                 if bottom_player_score == 15 or top_player_score == 15:
@@ -278,8 +278,8 @@ def play(screen, top_player, bottom_player, tennisBall, all_sprites):
             # Health bars
             draw_bars(screen, top_player, bottom_player)
 
-            all_sprites.draw(screen)
-            pygame.display.update()
+            #all_sprites.draw(screen)
+            #pygame.display.update()
             clock.tick(60)
 
         # To exit game
@@ -290,7 +290,7 @@ def play(screen, top_player, bottom_player, tennisBall, all_sprites):
                 if event.key == pygame.K_ESCAPE:
                     carryOn = False
         
-        print("-----------------------------------")
+        #print("-----------------------------------")
 
     return top_player_score, bottom_player_score
 
