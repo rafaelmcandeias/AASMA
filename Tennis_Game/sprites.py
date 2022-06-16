@@ -225,6 +225,7 @@ class Ball(pygame.sprite.Sprite):
             if LEFT_FIELD <= self.rect.x < MIDDLE_FIELD[0]:
                 if action == 'Left':
                     speedx = -rnd.uniform(0,1)
+                    print(speedx)
                 elif action == 'Right':
                     speedx = rnd.uniform(3, 3.5)
                 elif action == 'Straight':

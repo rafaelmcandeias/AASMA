@@ -278,8 +278,8 @@ def play(screen, top_player, bottom_player, tennisBall, all_sprites):
             # Health bars
             draw_bars(screen, top_player, bottom_player)
 
-            #all_sprites.draw(screen)
-            #pygame.display.update()
+            all_sprites.draw(screen)
+            pygame.display.update()
             clock.tick(60)
 
         # To exit game

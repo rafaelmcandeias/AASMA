@@ -4,11 +4,8 @@
 #
 # Name Speed Force Energy Mode
 #
-# Valores nunca mt diferentes para testar os algoritmos. Apenas quando necessário
-# random com velocidade alta, caso contrário faria movimentos muito curtos
 Random 7 5.5 0.8 random
 #
-# begginer expert e pro com velocidades mais pequenas caso contrario chegavam a bola mt rapido
 Beginner 3 5.5 0.7 beginner
 #
 Expert 3 5.5 0.7 expert
