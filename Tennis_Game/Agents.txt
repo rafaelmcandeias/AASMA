@@ -6,12 +6,8 @@
 #
 Random 3.5 5.5 0.7 random
 #
-#Beginner 3.5 5.5 0.7 beginner
+Beginner 3.5 5.5 0.7 beginner
 #
-#Expert 3.5 5.5 0.7 expert
+Expert 3.5 5.5 0.7 expert
 #
-#Pro 3.5 5.5 0.7 pro
-#
-#
-# O simulador é realista
-# 
+Pro 3.5 5.5 0.7 pro
