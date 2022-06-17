@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 
 # Compute win lost plot
 labels = ['Random', 'Beginner', 'Expert', 'Pro']
+#auto
 wins, losts = [125, 144, 59, 54], [66, 47, 132, 137]
 
 X = np.arange(len(labels))

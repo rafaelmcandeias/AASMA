@@ -1,13 +1,12 @@
 import pygame
 import images
-import numpy as np
 import numpy.random as rnd
-import random
+
 
 # ------------------------------------------------------------
 
 # Vars to limit the field size
-LIMIT_LEFT = LIMIT_TOP = 0
+LIMIT_LEFT = LIMIT_TOP = 0.99175
 LIMIT_BOT = 587
 LIMIT_RIGHT = 648
 
@@ -21,11 +20,12 @@ LIMIT_RIGHT_NET  = 525
 LIMIT_TOP_FIELD = 78
 LIMIT_BOT_FIELD = 571
 LEFT_FIELD = 0.99175
-MIDDLE_FIELD = (275, 475)
+CENTER_X = LIMIT_LEFT_NET + ((LIMIT_RIGHT_NET - LIMIT_LEFT_NET) / 2)
+MIDDLE_FIELD = (CENTER_X - 50, CENTER_X + 50)
 
 # Vars for starting positions
 BOTTOM_POS = (450, 524)
-TOP_POS = (300, 40)
+TOP_POS = (200, 15)
 # Vars for point winners
 BOT_WON = 1
 TOP_WON = 2
@@ -42,7 +42,7 @@ MID_STAMINA = 0.75
 HIGH_STAMINA = 1
 
 # Vars to define net height
-NET_HEIGHT = 0.8
+NET_HEIGHT = 0.2
 HIT_HEIGHT = 1.5
 
 # Vars for physichs m/s²
@@ -97,18 +97,38 @@ class Player(pygame.sprite.Sprite):
 
         # Below 25% of energy
         if self.stamina < LOW_STAMINA * self.energy:
-            force *= random.uniform(0.1, LOW_STAMINA)
+            force *= 0.5
 
         # Below of 75% of energy
         elif self.stamina < MID_STAMINA * self.energy:
-            force *= random.uniform(LOW_STAMINA, MID_STAMINA)
+            force *= 0.65
 
         # Below 100% of energy
         elif self.stamina < HIGH_STAMINA * self.energy:
-            force *= random.uniform(MID_STAMINA, HIGH_STAMINA)
+            force *= 0.9
         
         self.lose_stamina(force)
         return force
+    
+
+    def control_force(self, ball, speedy, speedz):
+        ## Get time to hit the ground
+        #time = Symbol('time')
+        #time = solve(-GRAVITY*0.5*(time**2) + speedz*time + ball.z, time)
+        #
+        ## positive time
+        #for t in time:
+        #    if t > 0:
+        #        time_to_ground = t
+        #        break
+        #
+        #
+        ## Get y at z hit ground
+        #y_final = ball.rect.y + (speedy*time_to_ground)/TIME - AIR_RESISTANCE*0.5*(time_to_ground**2)
+        #print(y_final)
+        if LIMIT_TOP_NET - 150 <= self.rect.y <= LIMIT_BOTTOM_NET + 150:
+            return speedz * 0.5
+        return speedz
         
 
 # Class for Top player
@@ -220,71 +240,42 @@ class Ball(pygame.sprite.Sprite):
     
     def get_stroke_speed(self, player, action):
     # bottom players stroke
-        if isinstance(player, Bottom_player):
-            # region 1 of the court
-            if LEFT_FIELD <= self.rect.x < MIDDLE_FIELD[0]:
-                if action == 'Left':
-                    speedx = -rnd.uniform(0,1)
-                    print(speedx)
-                elif action == 'Right':
-                    speedx = rnd.uniform(3, 3.5)
-                elif action == 'Straight':
-                    speedx = rnd.uniform(0, 0.25)
-            
-            # region 2 of the court
-            elif MIDDLE_FIELD[0] <= self.rect.x < MIDDLE_FIELD[1]:
-                if action == 'Left':
-                    speedx = -rnd.uniform(2,3)
-                elif action == 'Right':
-                    speedx = rnd.uniform(2,3)
-                elif action == 'Straight':
-                    speedx = rnd.uniform(-0.5, 0.5)
-            
-            # region 3 of the court
-            else:
-                if action == 'Left':
-                    speedx = -rnd.uniform(3, 3.5)
-                elif action == 'Right':
-                    speedx = rnd.uniform(0,1)
-                elif action == 'Straight':
-                    speedx = rnd.uniform(-0.5, 0)
-            
-            force = player.choose_force()
+        if LEFT_FIELD <= self.rect.x < MIDDLE_FIELD[0]:
+            if action == 'Left':
+                speedx = -rnd.uniform(0, 0.5)
+            elif action == 'Right':
+                speedx = rnd.uniform(1.75, 2)
+            elif action == 'Straight':
+                speedx = rnd.uniform(0.2, 0.5)
 
-        # top players stroke
+        # region 2 of the court
+        elif MIDDLE_FIELD[0] <= self.rect.x < MIDDLE_FIELD[1]:
+            if action == 'Left':
+                speedx = -rnd.uniform(2, 3)
+            elif action == 'Right':
+                speedx = rnd.uniform(1.5, 2)
+            elif action == 'Straight':
+                speedx = rnd.uniform(-0.5, 0.5)
+        
+        # region 3 of the court
         else:
-            if LEFT_FIELD <= self.rect.x < MIDDLE_FIELD[0]:
-                if action == 'Left':
-                    speedx = -rnd.uniform(0,1)
-                elif action == 'Right':
-                    speedx = rnd.uniform(3, 3.5)
-                elif action == 'Straight':
-                    speedx = rnd.uniform(0, 0.5)
-
-            # region 2 of the court
-            elif MIDDLE_FIELD[0] <= self.rect.x < MIDDLE_FIELD[1]:
-                if action == 'Left':
-                    speedx = -rnd.uniform(2,3)
-                elif action == 'Right':
-                    speedx = rnd.uniform(2,3)
-                elif action == 'Straight':
-                    speedx = rnd.uniform(-0.5, 0.5)
-            
-            # region 3 of the court
-            else:
-                if action == 'Left':
-                    speedx = -rnd.uniform(3, 3.5)
-                elif action == 'Right':
-                    speedx = rnd.uniform(0,1)
-                elif action == 'Straight':
-                    speedx = rnd.uniform(-0.5, 0)
-            
-            force = player.choose_force()
+            if action == 'Left':
+                speedx = -rnd.uniform(1.75, 2)
+            elif action == 'Right':
+                speedx = rnd.uniform(0.2, 0.5)
+            elif action == 'Straight':
+                speedx = rnd.uniform(-0.5, 0)
+        
+        force = player.choose_force()
         
         speedy = (abs(force) - abs(speedx)) * 0.7
+
         if isinstance(player, Bottom_player):
             speedy = -speedy
-        speedz = abs(force) - abs(speedx) - abs(speedy)
+        speedz = (abs(force) - abs(speedx) - abs(speedy)) * 0.8
+        
+        if player.mode == "pro":
+            speedz = player.control_force(self, speedy, speedz)
         
         return (speedx, speedy, speedz)
 
@@ -311,7 +302,6 @@ class Ball(pygame.sprite.Sprite):
             if self.z < 0:
                 self.z = 0
     
-
         # Ball left the board without touching the ground
         if self.z > 0 and self.ground == 0:
             # Top player hitted the ball
@@ -331,12 +321,10 @@ class Ball(pygame.sprite.Sprite):
         if self.z <= 0 and self.ground == 0:
             # Ball touched out of bounds x
             if (LEFT_FIELD <= self.rect.x <= LIMIT_LEFT_NET) or (LIMIT_RIGHT_NET <= self.rect.x <= LIMIT_RIGHT):
-                #print("OFB")
                 return FAULT
             
             # Ball touched out of bounds y
             if self.rect.y < LIMIT_TOP_FIELD or self.rect.y > LIMIT_BOT_FIELD:
-                #print("OFB")
                 return FAULT
             
             # Ball touched player's side first
@@ -350,7 +338,6 @@ class Ball(pygame.sprite.Sprite):
                 return FAULT
     
             # Calculate rebounce
-            #print("First Bounce")
             self.speedx *= 0.66
             self.speedy *= 0.66
             self.speedz *= -0.66
@@ -359,11 +346,19 @@ class Ball(pygame.sprite.Sprite):
             self.z += self.speedz * TIME
 
         # z <= 0 and Second bounce -> Point
-        elif self.z <= 0 and self.ground == 1:
-            #print("Second Bounce")
+        if self.z <= 0 and self.ground == 1:
             self.speedx, self.speedy, self.speedz = 0, 0, 0
             self.ground = 2
             return POINT
+        
+        if self.ground == 1:
+            # Ball left x
+            if self.rect.x <= LIMIT_LEFT or self.rect.x >= LIMIT_RIGHT:
+                return POINT
+            
+            # Ball left Y
+            if self.rect.y <= LIMIT_TOP or self.rect.y >= LIMIT_BOT:
+                return POINT
 
         # Updates rect only if it is moving
         if self.speedx != 0 or self.speedy != 0:
@@ -396,11 +391,10 @@ class Ball(pygame.sprite.Sprite):
     def serve(self, server, screen):
         effect = pygame.mixer.Sound('tennisserve.wav')
         effect.play(0)
-        #print("Serve")
 
         self.z = HIT_HEIGHT
         if isinstance(server, Top_player):
-            self.speedx = rnd.uniform(1.5, 1.6)
+            self.speedx = rnd.uniform(1.25, 1.5)
             server.image = images.camden_serve
 
         else:
@@ -408,7 +402,7 @@ class Ball(pygame.sprite.Sprite):
             server.image = images.robert_serve
         
         force = server.choose_force()
-        self.speedy = (abs(force) - abs(self.speedx)) * 0.7
+        self.speedy = (abs(force) - abs(self.speedx)) * 0.9
         if isinstance(server, Bottom_player):
             self.speedy = -self.speedy
         self.speedz = abs(force) - abs(self.speedx) - abs(self.speedy)
@@ -435,21 +429,21 @@ class Ball(pygame.sprite.Sprite):
             return TOP_WON
 
         # the bottom side won
-        if (self.rect.x > LIMIT_RIGHT or self.rect.x < LIMIT_LEFT or self.rect.y < LIMIT_TOP) or (abs(self.speedy) < 0.5 and self.rect.y < LIMIT_BOTTOM_NET):
+        if self.rect.x > LIMIT_RIGHT or self.rect.x < LIMIT_LEFT or self.rect.y < LIMIT_TOP or self.rect.y > LIMIT_BOT:
             self.speedx = 0
             self.speedy = 0
             self.rect.x = 0
             self.rect.y = 0
+            
+            if self.ground >= 1:
+                if isinstance(player_to_strike, Top_player):
+                    return BOT_WON
+                return TOP_WON
+            
+            if isinstance(player_to_strike, Top_player):
+                return TOP_WON
             return BOT_WON
         
-        # top side won
-        if (self.rect.x > LIMIT_RIGHT or self.rect.x < LIMIT_LEFT or self.rect.y > LIMIT_BOT) or (abs(self.speedy) < 0.5 and self.rect.y > LIMIT_BOTTOM_NET):   
-            self.speedx = 0
-            self.speedy = 0
-            self.rect.x = 0
-            self.rect.y = 0
-            return TOP_WON
-
         # No one scored
         return 0
 
@@ -463,7 +457,6 @@ class Ball(pygame.sprite.Sprite):
         self.z = HIT_HEIGHT
         # Get ball speeds
         self.speedx, self.speedy, self.speedz = self.get_stroke_speed(player_to_strike, action)
-        
         # Get the correct image
         if isinstance(player_to_strike, Bottom_player):
             image_forehand = images.robert_forehand

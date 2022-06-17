@@ -1,16 +1,16 @@
 # 0 < Energy <= 1
 # 4 < Force <= 7
-# 2 < Speed <= 3.1 
+# 2 < Speed <= 3.5
 #
 # Name Speed Force Energy Mode
 #
-Random 7 5.5 0.8 random
+Random 3.5 5.5 0.7 random
 #
-Beginner 3 5.5 0.7 beginner
+#Beginner 3.5 5.5 0.7 beginner
 #
-Expert 3 5.5 0.7 expert
+#Expert 3.5 5.5 0.7 expert
 #
-Pro 3 5.5 0.7 pro
+#Pro 3.5 5.5 0.7 pro
 #
 #
 # O simulador é realista

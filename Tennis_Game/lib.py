@@ -1,8 +1,8 @@
 from time import sleep
 import pygame
 import operator
-from sprites import Top_player, Bottom_player, Ball
-from env import step_bp, step_tp
+from sprites import CENTER_X, LIMIT_BOT, Top_player, Bottom_player, Ball
+from env import LIMIT_BOT_FIELD, step_bp, step_tp
 
 # ------------------------------------------------------------
 
@@ -278,8 +278,8 @@ def play(screen, top_player, bottom_player, tennisBall, all_sprites):
             # Health bars
             draw_bars(screen, top_player, bottom_player)
 
-            all_sprites.draw(screen)
-            pygame.display.update()
+            #all_sprites.draw(screen)
+            #pygame.display.update()
             clock.tick(60)
 
         # To exit game
@@ -289,8 +289,6 @@ def play(screen, top_player, bottom_player, tennisBall, all_sprites):
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     carryOn = False
-        
-        #print("-----------------------------------")
 
     return top_player_score, bottom_player_score
 

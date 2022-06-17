@@ -28,7 +28,7 @@ if __name__ == "__main__":
     print("===========================\n")
     
     # 32 times
-    for _ in range(32):
+    for _ in range(16):
         # Takes n*(n-1) games 
         for top_name in set(agents.keys()):
             for bot_name in set(agents.keys()):
@@ -56,10 +56,10 @@ if __name__ == "__main__":
                     database[top_player.mode].append((DRAW, top_score))
     
     print_scoreboard(scores)
-    #for mode in database.keys():
-    #    df = pd.DataFrame(database[mode])
-    #    file_name = 'results/' + mode + '.csv'
-    #    df.to_csv(file_name, index=False, header=False)
+    for mode in database.keys():
+        df = pd.DataFrame(database[mode])
+        file_name = 'results/' + mode + '.csv'
+        df.to_csv(file_name, index=False, header=False)
 
     # End game
     pygame.quit()

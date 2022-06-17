@@ -91,7 +91,6 @@ def step_bp(player_to_strike, bottom_player, top_player, ball, mode):
             # Bottom player hits the ball
             if ball.rect.colliderect(bottom_player):
                 action = get_stroke_direction()[np.random.choice(list(get_stroke_direction().keys()))]
-                #print("Bot strike", action)
                 # HIT
                 return ball.strike(bottom_player, action)
            
@@ -102,7 +101,6 @@ def step_bp(player_to_strike, bottom_player, top_player, ball, mode):
                     action = 'Right'
                 else:
                     action = 'Stay'
-                #print("Bot action", action)
                 bottom_player.update(action)
                 # None
                 return None
@@ -110,7 +108,6 @@ def step_bp(player_to_strike, bottom_player, top_player, ball, mode):
         # Not its turn to hit the ball
         else:
             action = 'Stay'
-            #print("Bot action", action)
             bottom_player.update(action)
             # None
             return None
@@ -164,8 +161,8 @@ def step_bp(player_to_strike, bottom_player, top_player, ball, mode):
                         else:
                             action = 'Stay'
 
-                    # Will move frontways
-                    else:
+                    # Will move frontways if ball passed the net
+                    elif ball.rect.y > LIMIT_BOTTOM_NET:
                         if bottom_player.rect.y < ball.rect.y:
                             action = 'Down' 
                         elif bottom_player.rect.y > ball.rect.y:
@@ -234,8 +231,8 @@ def step_bp(player_to_strike, bottom_player, top_player, ball, mode):
                         else:
                             action = 'Stay'
 
-                    # Will move frontways
-                    else:
+                    # Will move frontways if ball passed the net
+                    elif ball.rect.y > LIMIT_BOTTOM_NET:
                         if bottom_player.rect.y < ball.rect.y:
                             action = 'Down' 
                         elif bottom_player.rect.y > ball.rect.y:
@@ -299,7 +296,6 @@ def step_tp(player_to_strike, bottom_player, top_player, ball, mode):
             # Bottom player hits the ball
             if ball.rect.colliderect(top_player):
                 action = get_stroke_direction()[np.random.choice(list(get_stroke_direction().keys()))]
-                #print("Top strike", action)
                 # HIT
                 return ball.strike(top_player, action)
            
@@ -310,14 +306,12 @@ def step_tp(player_to_strike, bottom_player, top_player, ball, mode):
                     action = 'Right'
                 else:
                     action = 'Stay'
-                #print("Top action", action)
                 top_player.update(action)
                 return None
 
         # Not its turn to hit the ball
         else:
             action = 'Stay'
-            #print("Top action", action)
             top_player.update(action)
             return None
 
@@ -370,8 +364,8 @@ def step_tp(player_to_strike, bottom_player, top_player, ball, mode):
                         else:
                             action = 'Stay'
                     
-                    # Will move frontways
-                    else:
+                    # Will move Y if ball passed the net
+                    elif ball.rect.y < LIMIT_TOP_NET:
                         if top_player.rect.y < ball.rect.y:
                             action = 'Down' 
                         elif top_player.rect.y > ball.rect.y:
@@ -439,8 +433,8 @@ def step_tp(player_to_strike, bottom_player, top_player, ball, mode):
                         else:
                             action = 'Stay'
                     
-                    # Will move frontways
-                    else:
+                    # Will move Y if ball passed the net
+                    elif ball.rect.y < LIMIT_TOP_NET:
                         if top_player.rect.y < ball.rect.y:
                             action = 'Down' 
                         elif top_player.rect.y > ball.rect.y:
