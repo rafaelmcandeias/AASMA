@@ -112,20 +112,6 @@ class Player(pygame.sprite.Sprite):
     
 
     def control_force(self, ball, speedy, speedz):
-        ## Get time to hit the ground
-        #time = Symbol('time')
-        #time = solve(-GRAVITY*0.5*(time**2) + speedz*time + ball.z, time)
-        #
-        ## positive time
-        #for t in time:
-        #    if t > 0:
-        #        time_to_ground = t
-        #        break
-        #
-        #
-        ## Get y at z hit ground
-        #y_final = ball.rect.y + (speedy*time_to_ground)/TIME - AIR_RESISTANCE*0.5*(time_to_ground**2)
-        #print(y_final)
         if LIMIT_TOP_NET - 150 <= self.rect.y <= LIMIT_BOTTOM_NET + 150:
             return speedz * 0.5
         return speedz
