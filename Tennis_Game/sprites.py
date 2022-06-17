@@ -251,9 +251,9 @@ class Ball(pygame.sprite.Sprite):
         # region 2 of the court
         elif MIDDLE_FIELD[0] <= self.rect.x < MIDDLE_FIELD[1]:
             if action == 'Left':
-                speedx = -rnd.uniform(2, 3)
+                speedx = -rnd.uniform(0.75, 1)
             elif action == 'Right':
-                speedx = rnd.uniform(1.5, 2)
+                speedx = rnd.uniform(0.75, 1)
             elif action == 'Straight':
                 speedx = rnd.uniform(-0.5, 0.5)
         
