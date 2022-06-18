@@ -28,7 +28,7 @@ if __name__ == "__main__":
     print("===========================\n")
     
     # 32 times
-    for _ in range(16):
+    for _ in range(24):
         # Takes n*(n-1) games 
         for top_name in set(agents.keys()):
             for bot_name in set(agents.keys()):
