@@ -56,10 +56,11 @@ if __name__ == "__main__":
                     database[top_player.mode].append((DRAW, top_score))
     
     print_scoreboard(scores)
-    for mode in database.keys():
-        df = pd.DataFrame(database[mode])
-        file_name = 'results/' + mode + '.csv'
-        df.to_csv(file_name, index=False, header=False)
+    # Code used to gather data
+    #for mode in database.keys():
+    #    df = pd.DataFrame(database[mode])
+    #    file_name = 'results/' + mode + '.csv'
+    #    df.to_csv(file_name, index=False, header=False)
 
     # End game
     pygame.quit()

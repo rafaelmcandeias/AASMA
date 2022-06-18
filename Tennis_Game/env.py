@@ -73,14 +73,12 @@ def step_bp(player_to_strike, bottom_player, top_player, ball, mode):
         # It is bottom's turn to hit the ball and it hits it
         if player_to_strike == bottom_player and ball.rect.colliderect(bottom_player):
             action = get_stroke_direction()[np.random.choice(tuple(get_stroke_direction().keys()))]
-            #print("Bot strike", action)
             # HIT
             return ball.strike(bottom_player, action)
         
         else:
             action = get_movement()[np.random.choice(tuple(get_movement().keys()))]
             bottom_player.update(action)
-            #print("Bot action", action)
             return None
 
 
@@ -130,7 +128,7 @@ def step_bp(player_to_strike, bottom_player, top_player, ball, mode):
                         action = 'Right'
                     else:
                         action = 'Left'
-                #print("Bottom strike", action)
+
                 # HIT
                 return ball.strike(bottom_player, action)
             
@@ -142,11 +140,11 @@ def step_bp(player_to_strike, bottom_player, top_player, ball, mode):
                     # Is outside of x field
                     if ball.rect.x < LIMIT_LEFT_NET or ball.rect.x > LIMIT_RIGHT_NET:
                         action = 'Stay'
-                        #print("Bot saving energy")
+        
                     # Is outside of y field
                     elif ball.rect.y > LIMIT_BOT_FIELD:
                         action = 'Stay'
-                        #print("Bot saving energy")
+        
                 
                 # Ball inside limits
                 if action == None:
@@ -170,7 +168,7 @@ def step_bp(player_to_strike, bottom_player, top_player, ball, mode):
                         else:
                             action = 'Stay'
                 
-                #print("Bot action", action)
+
                 bottom_player.update(action)
                 return None
         
@@ -200,7 +198,7 @@ def step_bp(player_to_strike, bottom_player, top_player, ball, mode):
                         action = 'Right'
                     else:
                         action = 'Left'
-                #print("Bottom strike", action)
+
                 # HIT
                 return ball.strike(bottom_player, action)
             
@@ -212,11 +210,11 @@ def step_bp(player_to_strike, bottom_player, top_player, ball, mode):
                     # Is outside of x field
                     if ball.rect.x < LIMIT_LEFT_NET or ball.rect.x > LIMIT_RIGHT_NET:
                         action = 'Stay'
-                        #print("Bot saving energy")
+        
                     # Is outside of y field
                     elif ball.rect.y > LIMIT_BOT_FIELD:
                         action = 'Stay'
-                        #print("Bot saving energy")
+        
                 
                 # Ball inside limits
                 if action == None:
@@ -240,7 +238,7 @@ def step_bp(player_to_strike, bottom_player, top_player, ball, mode):
                         else:
                             action = 'Stay'
                 
-                #print("Bot action", action)
+
                 bottom_player.update(action)
                 return None
         
@@ -264,7 +262,6 @@ def step_bp(player_to_strike, bottom_player, top_player, ball, mode):
                 elif bottom_player.rect.y > MIDDLE_Y_BOT:
                     action = 'Up'
             
-            #print("Bot reposition", action)
             bottom_player.update(action)
             return None
 
@@ -277,14 +274,12 @@ def step_tp(player_to_strike, bottom_player, top_player, ball, mode):
         # It is top's turn to hit the ball and it hits it
         if player_to_strike == top_player and ball.rect.colliderect(top_player):
             action = get_stroke_direction()[np.random.choice(tuple(get_stroke_direction().keys()))]
-            #print("Top strike", action)
             # HIT
             return ball.strike(top_player, action)
 
         else:
             action = get_movement()[np.random.choice(tuple(get_movement().keys()))]
             top_player.update(action)
-            #print("Top action", action)
             return None
     
 
@@ -333,7 +328,7 @@ def step_tp(player_to_strike, bottom_player, top_player, ball, mode):
                         action = 'Right'
                     else:
                         action = 'Left'
-                #print("Top strike", action)
+
                 # HIT
                 return ball.strike(top_player, action)
             
@@ -345,11 +340,11 @@ def step_tp(player_to_strike, bottom_player, top_player, ball, mode):
                     # Is outside of x field
                     if ball.rect.x < LIMIT_LEFT_NET or ball.rect.x > LIMIT_RIGHT_NET:
                         action = 'Stay'
-                        #print("Top saving energy")
+        
                     # Is outside of y field
                     elif ball.rect.y < LIMIT_TOP_FIELD:
                         action = 'Stay'
-                        #print("Top saving energy")
+        
                 
                 # Ball inside limits
                 if action == None:
@@ -373,7 +368,7 @@ def step_tp(player_to_strike, bottom_player, top_player, ball, mode):
                         else:
                             action = 'Stay'
                 
-                #print("Top action", action)
+
                 top_player.update(action)
                 return None
         
@@ -402,7 +397,7 @@ def step_tp(player_to_strike, bottom_player, top_player, ball, mode):
                         action = 'Right'
                     else:
                         action = 'Left'
-                #print("Top strike", action)
+
                 # HIT
                 return ball.strike(top_player, action)
             
@@ -414,11 +409,11 @@ def step_tp(player_to_strike, bottom_player, top_player, ball, mode):
                     # Is outside of x field
                     if (top_player.rect.y == LIMIT_TOP_NET and ball.rect.y >= LIMIT_TOP_NET) or ball.rect.x > LIMIT_RIGHT_NET:
                         action = 'Stay'
-                        #print("Top saving energy")
+        
                     # Is outside of y field
                     elif ball.rect.y < LIMIT_TOP_FIELD:
                         action = 'Stay'
-                        #print("Top saving energy")
+        
                 
                 # Ball inside limits
                 if action == None:
@@ -442,7 +437,7 @@ def step_tp(player_to_strike, bottom_player, top_player, ball, mode):
                         else:
                             action = 'Stay'
                 
-                #print("Top action", action)
+
                 top_player.update(action)
                 return None
         
@@ -466,6 +461,5 @@ def step_tp(player_to_strike, bottom_player, top_player, ball, mode):
                 elif top_player.rect.y > MIDDLE_Y_TOP:
                     action = 'Up'
                 
-            #print("Top reposition", action)
             top_player.update(action)
             return None

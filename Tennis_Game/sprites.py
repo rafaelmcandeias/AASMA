@@ -220,7 +220,6 @@ class Ball(pygame.sprite.Sprite):
         if isinstance(server, Top_player):
             self.rect.x, self.rect.y = TOP_POS[0] - 30, TOP_POS[1] + 10
         else:
-            #print("Restart position")
             self.rect.x, self.rect.y = BOTTOM_POS[0] + 10, BOTTOM_POS[1] + 10
     
     
@@ -292,15 +291,12 @@ class Ball(pygame.sprite.Sprite):
         if self.z > 0 and self.ground == 0:
             # Top player hitted the ball
             if self.speedy > 0 and self.rect.y > LIMIT_BOT:
-                    #print("NEEDS TO TOUCH FIELD ONCE")
                     return FAULT
             # Bot player hitted the ball
             if self.speedy < 0 and self.rect.y < LIMIT_TOP:
-                #print("NEEDS TO TOUCH FIELD ONCE")
                 return FAULT
             # Ball left the x limits
             if self.rect.x <= LIMIT_LEFT or self.rect.x >= LIMIT_RIGHT:
-                #print("NEEDS TO TOUCH FIELD ONCE")
                 return FAULT
 
         # z <= 0 -> Bounce on the ground
@@ -316,11 +312,11 @@ class Ball(pygame.sprite.Sprite):
             # Ball touched player's side first
             # Top player hitted the ball
             if self.speedy > 0 and self.rect.y < LIMIT_TOP_NET:
-                #print("NEEDS TO TOUCH TOP SIDE")
+    
                 return FAULT
             # Bot player hitted the ball
             if self.speedy < 0 and self.rect.y > LIMIT_BOTTOM_NET:
-                #print("NEEDS TO TOUCH BOTTOM SIDE")
+    
                 return FAULT
     
             # Calculate rebounce
@@ -353,10 +349,8 @@ class Ball(pygame.sprite.Sprite):
 
         # Ball could not pass the net
         if (LIMIT_LEFT_NET <= self.rect.x <= LIMIT_RIGHT_NET) and (LIMIT_TOP_NET <= self.rect.y <= LIMIT_BOTTOM_NET) and self.z <= NET_HEIGHT:
-            #print("NET")
             return FAULT
         
-        #print(self.rect.x, self.rect.y, self.z)
         return None
 
 
